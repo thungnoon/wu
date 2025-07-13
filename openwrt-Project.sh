@@ -47,7 +47,7 @@ git clone https://github.com/xiaorouji/openwrt-passwall-packages.git package/ope
 git clone https://github.com/xiaorouji/openwrt-passwall.git package/passwall
 git clone https://github.com/linkease/istore.git package/istore
 git clone https://github.com/linkease/istore-ui.git package/istore-ui
-git clone -b lede https://github.com/pymumu/luci-app-smartdns.git package/luci-app-smartdns
+# git clone -b lede https://github.com/pymumu/luci-app-smartdns.git package/luci-app-smartdns is not set
 git clone https://github.com/immortalwrt/homeproxy.git package/luci-app-homeproxy
 # git clone https://github.com/v2rayA/v2raya-openwrt.git package/v2raya-openwrt
 merge_package https://github.com/messense/aliyundrive-webdav aliyundrive-webdav/openwrt applications/aliyundrive-webdav
