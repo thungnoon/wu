@@ -39,6 +39,7 @@ sed -i '$a src-git nas_luci https://github.com/linkease/nas-packages-luci.git;ma
 git clone https://github.com/sirpdboy/luci-app-poweroffdevice.git package/luci-app-poweroffdevice
 git clone https://github.com/sirpdboy/luci-app-partexp.git package/luci-app-partexp
 git clone https://github.com/sirpdboy/luci-app-adguardhome.git package/luci-app-adguardhome
+git clone https://github.com/vernesong/OpenClash/luci-app-openclash.git package/luci-app-openclash
 git clone https://github.com/fw876/helloworld.git package/ssr
 git clone -b 2305 https://github.com/firker/diy-ziyong.git package/diy-ziyong
 git clone https://github.com/nikkinikki-org/OpenWrt-nikki.git package/openwrt-nikki
@@ -50,7 +51,7 @@ git clone -b lede https://github.com/pymumu/luci-app-smartdns.git package/luci-a
 git clone https://github.com/immortalwrt/homeproxy.git package/luci-app-homeproxy
 # git clone https://github.com/v2rayA/v2raya-openwrt.git package/v2raya-openwrt
 merge_package https://github.com/messense/aliyundrive-webdav aliyundrive-webdav/openwrt applications/aliyundrive-webdav
-merge_package https://github.com/vernesong/OpenClash OpenClash/luci-app-openclash
+# merge_package https://github.com/vernesong/OpenClash OpenClash/luci-app-openclash
 git clone https://github.com/firkerword/luci-app-lucky.git package/lucky
 find ./ | grep Makefile | grep v2ray-geodata | xargs rm -f
 find ./ | grep Makefile | grep mosdns | xargs rm -f
