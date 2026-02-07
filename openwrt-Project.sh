@@ -43,8 +43,8 @@ git clone https://github.com/xiaoxiao29/luci-app-adguardhome.git package/luci-ap
 git clone https://github.com/fw876/helloworld.git package/ssr
 git clone -b 2305 https://github.com/firker/diy-ziyong.git package/diy-ziyong
 git clone https://github.com/nikkinikki-org/OpenWrt-nikki.git package/openwrt-nikki
-git clone https://github.com/xiaorouji/openwrt-passwall-packages.git package/openwrt-passwall
-git clone https://github.com/xiaorouji/openwrt-passwall.git package/passwall
+
+git clone https://github.com/Openwrt-Passwall/openwrt-passwall.git package/luci-app-passwall
 git clone https://github.com/linkease/istore.git package/istore
 git clone https://github.com/linkease/istore-ui.git package/istore-ui
 # git clone -b lede https://github.com/pymumu/luci-app-smartdns.git package/luci-app-smartdns is not set
