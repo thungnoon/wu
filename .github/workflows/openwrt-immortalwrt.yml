@@ -172,8 +172,8 @@ jobs:
       id: tag
       if: env.UPLOAD_RELEASE == 'true' && steps.compile.outputs.status == 'success' && !cancelled()
       run: |
-        echo -e "24.10 源码 X86-64 平台\n" >> release.txt
-        echo "release_tag=$(date +"%Y.%m.%d-24.10_X86-64")" >> $GITHUB_OUTPUT
+        echo -e "25.12 源码 X86-64 平台\n" >> release.txt
+        echo "release_tag=$(date +"%Y.%m.%d-25.12_X86-64")" >> $GITHUB_OUTPUT
         echo "status=success" >> $GITHUB_OUTPUT
         
     - name: 上传固件到发布
