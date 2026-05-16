@@ -35,7 +35,7 @@ ALL_ETH=$(ls /sys/class/net/ | grep -E '^eth[0-9]+$' | grep -v '@' | sort -V)
 COUNT=$(echo "$ALL_ETH" | wc -l)
 
 if [ "$COUNT" -ge 2 ]; then
-    WAN_PORT=$(echo "$ALL_ETH" | head -n1)
+    WAN_PORT=$(echo "$ALL_ETH" | head -n2)
     LAN_PORTS=$(echo "$ALL_ETH" | tail -n +2 | tr '\n' ' ' | sed 's/ $//')
     ucidef_set_interfaces_lan_wan "$LAN_PORTS" "$WAN_PORT"
 elif [ "$COUNT" -eq 1 ]; then
