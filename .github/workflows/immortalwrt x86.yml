@@ -1,0 +1,202 @@
+name: 编译 ImmortalWrt 25.12 (最终优化版)
+
+on:
+  push:
+    branches: [ master ]
+  repository_dispatch:
+  workflow_dispatch:
+
+env:
+  REPO_URL: https://github.com/immortalwrt/immortalwrt
+  REPO_BRANCH: openwrt-25.12
+  CONFIG_FILE: .config
+  FEEDS_CONF: feeds.conf.default
+  DIY1_SH: diy1.sh
+  DIY2_SH: diy2.sh
+  TZ: Asia/Shanghai
+  OPENWRT_NAME: "ImmortalWrt"
+  UPLOAD_RELEASE: true
+  UPLOAD_BIN_DIR: false
+  UPLOAD_FIRMWARE: true
+  CCACHE_DIR: ~/.ccache
+  CCACHE_MAXSIZE: 2G
+
+jobs:
+  build:
+    name: 编译任务
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+
+    steps:
+      - name: 释放系统最大可用空间
+        run: |
+          sudo apt-get clean
+          docker system prune -af || true
+          sudo rm -rf /usr/share/dotnet /opt/ghc /usr/local/share/boost /usr/local/lib/android \
+            /usr/local/lib/node_modules /opt/hostedtoolcache /usr/local/.ghcup /usr/local/.cargo \
+            /usr/local/lib/python3.* /usr/local/aws-sam-cli /usr/local/aws-cli /usr/local/julia* \
+            /usr/share/swift /usr/share/miniconda /usr/share/az* /usr/share/kotlinc /opt/microsoft \
+            /opt/google /var/lib/gems /opt/pipx /opt/amazon || true
+          df -h
+
+      - name: 检出仓库代码
+        uses: actions/checkout@v5
+
+      - name: 设置当前的日期
+        run: |
+          sudo timedatectl set-timezone "$TZ"
+          echo "date1=$(date +'%Y.%m.%d-%H.%M')" >> $GITHUB_ENV
+          echo "date2=$(date +'%Y.%m.%d')" >> $GITHUB_ENV
+          echo "date3=$(date '+%Y年%m月%d日')" >> $GITHUB_ENV
+
+      - name: 安装编译依赖
+        env:
+          DEBIAN_FRONTEND: noninteractive
+        run: |
+          sudo -E apt-get -qq update
+
+          sudo -E apt-get -qq install \
+            ack antlr3 asciidoc autoconf automake autopoint \
+            binutils bison build-essential \
+            bzip2 ccache cmake cpio curl device-tree-compiler flex \
+            gawk gettext gcc-multilib g++-multilib \
+            git git-core gperf haveged help2man intltool \
+            libc6-dev-i386 libelf-dev libfuse-dev \
+            libglib2.0-dev libgmp3-dev libltdl-dev \
+            libmpc-dev libmpfr-dev libncurses5-dev \
+            libncursesw5-dev libpython3-dev \
+            libreadline-dev libssl-dev libtool \
+            lrzsz msmtp ninja-build p7zip p7zip-full patch \
+            pkgconf python3 python3-pyelftools \
+            python3-setuptools qemu-utils rsync \
+            scons squashfs-tools subversion swig texinfo \
+            uglifyjs unzip upx wget xmlto xxd zlib1g-dev
+
+          df -h
+
+      - name: 克隆 ImmortalWrt 源码
+        run: git clone --depth 1 $REPO_URL -b $REPO_BRANCH openwrt
+
+      - name: 首次自定义配置（处理 feeds.conf.default 并执行 diy1.sh）
+        run: |
+          cd openwrt
+          [ -f "../$FEEDS_CONF" ] && cp "../$FEEDS_CONF" ./
+          [ -f "../$DIY1_SH" ] && chmod +x "../$DIY1_SH" && "../$DIY1_SH"
+
+      - name: 更新 feeds
+        run: |
+          cd openwrt
+          ./scripts/feeds update -a
+          ./scripts/feeds install -a
+
+      - name: 缓存 dl 目录
+        uses: actions/cache@v5
+        with:
+          path: openwrt/dl
+          key: dl-${{ github.ref }}
+          restore-keys: |
+            dl-${{ github.ref }}-
+            dl-
+
+      - name: 缓存 ccache
+        uses: actions/cache@v5
+        with:
+          path: ~/.ccache
+          key: ccache-${{ github.ref }}
+          restore-keys: ccache-
+
+      - name: 再次加载自定义配置（复制 .config，执行 diy2.sh，make defconfig）
+        run: |
+          [ -e "$CONFIG_FILE" ] && cp "$CONFIG_FILE" openwrt/.config
+          cd openwrt
+          [ -f "../$DIY2_SH" ] && chmod +x "../$DIY2_SH" && "../$DIY2_SH"
+          make defconfig
+
+      - name: 下载源码包
+        run: |
+          cd openwrt
+          make download -j$(nproc)
+          find dl -size -1024c -exec ls -l {} \; -exec rm -f {} \;
+          make download -j$(nproc) || make download -j1 V=s
+
+      - name: 编译固件
+        id: compile
+        run: |
+          export PATH="/usr/lib/ccache:$PATH"
+          cd openwrt
+          echo -e "$(nproc) thread compile"
+          make -j$(nproc) || make -j1 || make -j1 V=s
+          echo "status=success" >> $GITHUB_OUTPUT
+
+      - name: 检查磁盘使用情况
+        if: (!cancelled())
+        run: df -hT
+
+      - name: 上传 bin 目录
+        if: steps.compile.outcome == 'success' && env.UPLOAD_BIN_DIR == 'true'
+        uses: actions/upload-artifact@v6
+        with:
+          name: bin_${{ env.OPENWRT_NAME }}_${{ env.date1 }}
+          path: openwrt/bin
+
+      - name: 整理固件文件
+        id: organize
+        if: steps.compile.outcome == 'success'
+        run: |
+          mkdir -p firmware
+
+          first_file=$(find openwrt/bin/targets -type f \( -name "*sysupgrade*" -o -name "*factory*" -o -name "*combined*" \) | head -1)
+
+          if [ -z "$first_file" ]; then
+            echo "ERROR: No firmware found!"
+            exit 1
+          fi
+
+          target_dir=$(dirname "$first_file")
+          parent=$(basename "$(dirname "$target_dir")")
+          child=$(basename "$target_dir")
+
+          device="${parent}_${child}"
+          device=$(echo "$device" | sed 's/[^a-zA-Z0-9._-]/_/g')
+
+          echo "DEVICE_NAME=$device" >> $GITHUB_ENV
+
+          cp -v ./openwrt/.config "firmware/${date1}_${OPENWRT_NAME}_${device}.config"
+
+          find openwrt/bin/targets -type f \( -name "*sysupgrade*" -o -name "*factory*" -o -name "*combined*" \) | while read file; do
+            base=$(basename "$file")
+            # 去除前三段（厂家-平台-子平台-），保留固件特征部分
+            clean_base=$(echo "$base" | sed -E 's/^([^-]+-){3}//')
+            cp "$file" "firmware/${date1}_${OPENWRT_NAME}_${device}_${clean_base}"
+          done
+
+          cd firmware
+          echo "FIRMWARE=$PWD" >> $GITHUB_ENV
+          echo "status=success" >> $GITHUB_OUTPUT
+          ls -lh
+
+      - name: 上传固件到 Artifact
+        if: steps.organize.outcome == 'success' && env.UPLOAD_FIRMWARE == 'true'
+        uses: actions/upload-artifact@v6
+        with:
+          name: firmware_${{ env.OPENWRT_NAME }}_${{ env.DEVICE_NAME }}_${{ env.date1 }}
+          path: ${{ env.FIRMWARE }}
+
+      - name: 创建 Release
+        if: steps.organize.outcome == 'success'
+        uses: softprops/action-gh-release@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ env.date1 }}-${{ github.run_number }}
+          name: ${{ env.date3 }}
+          files: ${{ env.FIRMWARE }}/*
+          draft: false
+          prerelease: false
+
+      - name: 编译后深度清理
+        if: always()
+        run: |
+          rm -rf openwrt/build_dir openwrt/bin openwrt/staging_dir openwrt/tmp
+          df -h
