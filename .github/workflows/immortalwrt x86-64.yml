@@ -2,7 +2,7 @@ name: 编译 ImmortalWrt 25.12 (最终优化版)
 
 on:
   push:
-    branches: [ master ]
+    branches: [ main ]
   repository_dispatch:
   workflow_dispatch:
   schedule:
