@@ -1,4 +1,4 @@
-name: 编译 ImmortalWrt 25.12 (最终优化版)
+name: immortalwrt_25.12_x86-64
 
 on:
   push:
@@ -142,63 +142,62 @@ jobs:
           name: bin_${{ env.OPENWRT_NAME }}_${{ env.date1 }}
           path: openwrt/bin
 
-      - name: 整理固件文件
-        id: organize
-        if: steps.compile.outcome == 'success'
-        run: |
-          mkdir -p firmware
+      - name: 整理文件
+      id: organize
+      if: steps.compile.outputs.status == 'success' && !cancelled()
+      run: |
+        cd openwrt/bin/targets/*/*
+        rm -rf *.bin
+        rm -rf *.buildinfo
+        rm -rf *rootfs.tar.gz
+        rm -rf *rootfs.img.gz
+        rm -rf *combined.img.gz
+        rm -rf *.json 
+        rm -rf *.manifest
+        rm -rf sha256sums
+        rm -rf packages
+        echo "FIRMWARE=$PWD" >> $GITHUB_ENV
+        echo "status=success" >> $GITHUB_OUTPUT
 
-          first_file=$(find openwrt/bin/targets -type f \( -name "*sysupgrade*" -o -name "*factory*" -o -name "*combined*" \) | head -1)
+    - name: 上传固件目录
+      uses: actions/upload-artifact@main
+      if: env.UPLOAD_FIRMWARE == 'true' && steps.organize.outputs.status == 'success' && !cancelled()
+      with:
+        name: OpenWrt_firmware${{ env.DEVICE_NAME }}${{ env.FILE_DATE }}
+        path: ${{ env.FIRMWARE }}
 
-          if [ -z "$first_file" ]; then
-            echo "ERROR: No firmware found!"
-            exit 1
-          fi
+    - name: 生成发布标签
+      id: tag
+      if: env.UPLOAD_RELEASE == 'true' && steps.compile.outputs.status == 'success' && !cancelled()
+      run: |
+        VERSION1="${REPO_BRANCH#*-}"
+        echo -e "  X86-64 平台\n  ${VERSION1} 源码\n ip地址 : 192.168.5.1" >> release.txt
+        echo "release_tag=$(date +"%Y.%m.%d-${VERSION1}_X86-64")" >> $GITHUB_OUTPUT
+        echo "status=success" >> $GITHUB_OUTPUT
 
-          target_dir=$(dirname "$first_file")
-          parent=$(basename "$(dirname "$target_dir")")
-          child=$(basename "$target_dir")
+    - name: 上传固件到发布
+      uses: softprops/action-gh-release@v2.0.4
+      if: steps.tag.outputs.status == 'success' && !cancelled()
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ steps.tag.outputs.release_tag }}
+        body_path: release.txt
+        files: ${{ env.FIRMWARE }}/*
 
-          device="${parent}_${child}"
-          device=$(echo "$device" | sed 's/[^a-zA-Z0-9._-]/_/g')
+    - name: 删除以前发布的固件
+      uses: dev-drprasad/delete-older-releases@v0.3.3
+      if: steps.compile.outputs.status == 'success' && env.UPLOAD_RELEASE == 'true' && !cancelled()
+      with:
+        keep_latest: 15
+        delete_tags: true
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-          echo "DEVICE_NAME=$device" >> $GITHUB_ENV
-
-          cp -v ./openwrt/.config "firmware/${date1}_${OPENWRT_NAME}_${device}.config"
-
-          find openwrt/bin/targets -type f \( -name "*sysupgrade*" -o -name "*factory*" -o -name "*combined*" \) | while read file; do
-            base=$(basename "$file")
-            # 去除前三段（厂家-平台-子平台-），保留固件特征部分
-            clean_base=$(echo "$base" | sed -E 's/^([^-]+-){3}//')
-            cp "$file" "firmware/${date1}_${OPENWRT_NAME}_${device}_${clean_base}"
-          done
-
-          cd firmware
-          echo "FIRMWARE=$PWD" >> $GITHUB_ENV
-          echo "status=success" >> $GITHUB_OUTPUT
-          ls -lh
-
-      - name: 上传固件到 Artifact
-        if: steps.organize.outcome == 'success' && env.UPLOAD_FIRMWARE == 'true'
-        uses: actions/upload-artifact@v6
-        with:
-          name: firmware_${{ env.OPENWRT_NAME }}_${{ env.DEVICE_NAME }}_${{ env.date1 }}
-          path: ${{ env.FIRMWARE }}
-
-      - name: 创建 Release
-        if: steps.organize.outcome == 'success'
-        uses: softprops/action-gh-release@v2
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ env.date1 }}-${{ github.run_number }}
-          name: ${{ env.date3 }}
-          files: ${{ env.FIRMWARE }}/*
-          draft: false
-          prerelease: false
-
-      - name: 编译后深度清理
-        if: always()
-        run: |
-          rm -rf openwrt/build_dir openwrt/bin openwrt/staging_dir openwrt/tmp
-          df -h
+    - name: 删除以前的工作流程
+      uses: Mattraks/delete-workflow-runs@v2
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        repository: ${{ github.repository }}
+        retain_days: 1
+        keep_minimum_runs: 3
