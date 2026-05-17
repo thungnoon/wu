@@ -34,12 +34,29 @@ board_config_update
 ALL_ETH=$(ls /sys/class/net/ | grep -E '^eth[0-9]+$' | grep -v '@' | sort -V)
 COUNT=$(echo "$ALL_ETH" | wc -l)
 
-if [ "$COUNT" -ge 2 ]; then
-    WAN_PORT=$(echo "$ALL_ETH" | head -n2)
-    LAN_PORTS=$(echo "$ALL_ETH" | tail -n +2 | tr '\n' ' ' | sed 's/ $//')
-    ucidef_set_interfaces_lan_wan "$LAN_PORTS" "$WAN_PORT"
-elif [ "$COUNT" -eq 1 ]; then
-    ucidef_set_interface_lan "$ALL_ETH"
+# 检查系统中是否存在 eth1
+if echo "$ALL_ETH" | grep -qwx "eth1"; then
+    # 固定 eth1 为 WAN 口
+    WAN_PORT="eth1"
+    # 从所有网口中剔除 eth1，剩下的全部作为 LAN 口
+    LAN_PORTS=$(echo "$ALL_ETH" | grep -vwx "eth1" | tr '\n' ' ' | sed 's/ $//')
+    
+    if [ -n "$LAN_PORTS" ]; then
+        ucidef_set_interfaces_lan_wan "$LAN_PORTS" "$WAN_PORT"
+    else
+        # 如果只有 eth1 这一个网口，则依然配置为 LAN 供管理（防止失联）
+        ucidef_set_interface_lan "$WAN_PORT"
+    fi
+else
+    # 如果机器上根本没有 eth1（比如单网口设备只有 eth0）
+    # 回退到默认逻辑：第一个网口为 WAN，其余为 LAN；或者独口为 LAN
+    if [ "$COUNT" -ge 2 ]; then
+        WAN_PORT=$(echo "$ALL_ETH" | head -n1)
+        LAN_PORTS=$(echo "$ALL_ETH" | tail -n +2 | tr '\n' ' ' | sed 's/ $//')
+        ucidef_set_interfaces_lan_wan "$LAN_PORTS" "$WAN_PORT"
+    elif [ "$COUNT" -eq 1 ]; then
+        ucidef_set_interface_lan "$ALL_ETH"
+    fi
 fi
 
 board_config_flush
