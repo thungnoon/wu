@@ -109,8 +109,8 @@ echo "正在注入自定义版本号..."
 COMPILE_DATE=$(TZ='Asia/Shanghai' date +%Y.%m.%d)
 
 # 严格全角括号格式，外部包裹双引号，绝不含单引号
-CUSTOM_VERSION="OpenWrt （${COMPILE_DATE} compiled by cheery)"
-CUSTOM_REVISION="${COMPILE_DATE} compiled by cheery"
+CUSTOM_VERSION="OpenWrt （${COMPILE_DATE} compiled by thungnoon)"
+CUSTOM_REVISION="${COMPILE_DATE} compiled by thungnoon"
 
 # ==========================================
 # 顶级版本主控文件补强（全局死锁动态变量 - 彻底剥离单引号风险）
@@ -122,7 +122,7 @@ if [ -f "include/version.mk" ]; then
     
     # 强制锁定全局发行版本号与描述（移除单引号，直接使用裸字符或双引号锁定）
     sed --follow-symlinks -i "s,VERSION_NUMBER:=.*,VERSION_NUMBER:=${COMPILE_DATE},g" include/version.mk
-    sed --follow-symlinks -i "s,VERSION_CODE:=.*,VERSION_CODE:=compiled by cheery,g" include/version.mk
+    sed --follow-symlinks -i "s,VERSION_CODE:=.*,VERSION_CODE:=compiled by thungnoon,g" include/version.mk
     sed --follow-symlinks -i "s,VERSION_REPO:=.*,VERSION_REPO:=OpenWrt,g" include/version.mk
     
     # 彻底封印 Git Commit 动态版本号抓取
@@ -144,7 +144,7 @@ fi
 if [ -f "package/base-files/image-config.in" ]; then
     sed --follow-symlinks -i -E "s,(config VERSION_DIST.*default \").*(\"),\1OpenWrt\2,g" package/base-files/image-config.in
     sed --follow-symlinks -i -E "s,(config VERSION_NUMBER.*default \").*(\"),\1${COMPILE_DATE}\2,g" package/base-files/image-config.in
-    sed --follow-symlinks -i -E "s,(config VERSION_CODE.*default \").*(\"),\1compiled by cheery\2,g" package/base-files/image-config.in
+    sed --follow-symlinks -i -E "s,(config VERSION_CODE.*default \").*(\"),\1compiled by thungnoon\2,g" package/base-files/image-config.in
 fi
 
 # 强行重写释放至固件的版本与发布信息
