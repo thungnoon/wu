@@ -185,21 +185,10 @@ jobs:
           body_path: release.txt
           files: ${{ env.FIRMWARE }}/*
 
-      - name: 删除以前发布的固件
-        uses: dev-drprasad/delete-older-releases@v0.3.3
-        if: steps.compile.outputs.status == 'success' && env.UPLOAD_RELEASE == 'true' && !cancelled()
-        with:
-          keep_latest: 15
-          delete_tags: true
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: 删除以前的工作流程
-        uses: Mattraks/delete-workflow-runs@v2
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          repository: ${{ github.repository }}
-          retain_days: 1
-          keep_minimum_runs: 3
+      - name: 编译后深度清理
+        if: always()
+        run: |
+          rm -rf openwrt/build_dir openwrt/bin openwrt/staging_dir openwrt/tmp
+          df -h
           
    
