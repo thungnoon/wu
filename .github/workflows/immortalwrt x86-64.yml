@@ -191,4 +191,17 @@ jobs:
           rm -rf openwrt/build_dir openwrt/bin openwrt/staging_dir openwrt/tmp
           df -h
           
-   
+      - name: Remove old Releases
+        uses: ophub/delete-releases-workflows@main
+        if: env.UPLOAD_RELEASE == 'true' && !cancelled()
+        with:
+          delete_releases: true
+          releases_keep_latest: 15
+          delete_tags: true
+          gh_token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Delete Artifacts
+        uses: geekyeggo/delete-artifact@main
+        with:
+          name: |
+            bin-archive
