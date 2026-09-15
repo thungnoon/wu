@@ -81,12 +81,12 @@ EOF
 chmod +x package/base-files/files/etc/uci-defaults/99-force-board-detect
 
 # ==================================================
-# 3. 编译工具链优化 (Golang 26.x )
+# 3. 编译工具链优化 (Golang 27.x )
 # ==================================================
 echo "更换 Golang 26.x..."
 rm -rf dl/go-mod-cache 2>/dev/null || true
 rm -rf feeds/packages/lang/golang
-git clone --depth 1 -b 26.x https://github.com/sbwml/packages_lang_golang feeds/packages/lang/golang
+git clone --depth 1 -b 27.x https://github.com/sbwml/packages_lang_golang feeds/packages/lang/golang
 
 # ==================================================
 # 4. 基础系统属性修改
