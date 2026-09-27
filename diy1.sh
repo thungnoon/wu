@@ -31,6 +31,9 @@ git clone --depth 1 https://github.com/vernesong/OpenClash.git package/luci-app-
 # OpenWrt-nikki
 git clone --depth 1 https://github.com/nikkinikki-org/OpenWrt-nikki.git package/luci-app-nikki
 
+# OpenWrt-momo
+git clone --depth 1 https://github.com/nikkinikki-org/OpenWrt-momo.git package/luci-app-momo
+
 # partexp
 git clone --depth 1 https://github.com/sirpdboy/luci-app-partexp.git package/luci-app-partexp
 
