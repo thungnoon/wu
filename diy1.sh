@@ -25,6 +25,9 @@ git clone --depth 1 https://github.com/smallprogram/luci-app-ghfu.git package/lu
 # openclash
 git clone --depth 1 https://github.com/vernesong/OpenClash.git package/luci-app-openclash
 
+# clashoo
+git clone --depth 1 https://github.com/kenzok8/openwrt-clashoo.git package/luci-app-clashoo
+
 # dockerman
 # git clone --depth 1 https://github.com/lisaac/luci-app-dockerman.git package/luci-app-dockerman
 # git clone --depth 1 https://github.com/XiaoHaiSly/luci-app-dockerman.git package/luci-app-dockerman
