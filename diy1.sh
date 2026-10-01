@@ -30,6 +30,7 @@ git clone --depth 1 https://github.com/kenzok8/openwrt-clashoo.git package/luci-
 
 # dockerman
 # git clone --depth 1 https://github.com/lisaac/luci-app-dockerman.git package/luci-app-dockerman
+# git clone --depth 1 https://github.com/XiaoHaiSly/luci-lib-docker.git package/luci-lib-docker
 # git clone --depth 1 https://github.com/XiaoHaiSly/luci-app-dockerman.git package/luci-app-dockerman
 
 # homeproxy
