@@ -12,7 +12,6 @@ rm -rf feeds/luci/applications/luci-app-argon-config
 rm -rf feeds/luci/applications/luci-app-lucky
 rm -rf feeds/luci/applications/luci-app-openclash
 rm -rf feeds/luci/applications/luci-app-homeproxy
-rm -rf feeds/luci/applications/luci-app-dockerman
 rm -rf feeds/packages/net/lucky
 rm -rf feeds/packages/utils/lucky
 rm -rf feeds/luci/applications/luci-app-passwall
