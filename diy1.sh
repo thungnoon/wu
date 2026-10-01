@@ -27,10 +27,10 @@ git clone --depth 1 https://github.com/vernesong/OpenClash.git package/luci-app-
 
 # dockerman
 # git clone --depth 1 https://github.com/lisaac/luci-app-dockerman.git package/luci-app-dockerman
-git clone --depth 1 https://github.com/XiaoHaiSly/luci-app-dockerman.git package/luci-app-dockerman
+# git clone --depth 1 https://github.com/XiaoHaiSly/luci-app-dockerman.git package/luci-app-dockerman
 
 # homeproxy
-git clone --depth 1 https://github.com/XiaoHaiSly/luci-app-homeproxy.git package/luci-app-homeproxy
+git clone --depth 1 https://github.com/sbwml/homeproxy.git package/luci-app-homeproxy
 
 # OpenWrt-nikki
 git clone --depth 1 https://github.com/nikkinikki-org/OpenWrt-nikki.git package/luci-app-nikki
