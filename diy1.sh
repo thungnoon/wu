@@ -25,19 +25,8 @@ git clone --depth 1 https://github.com/smallprogram/luci-app-ghfu.git package/lu
 # openclash
 git clone --depth 1 https://github.com/vernesong/OpenClash.git package/luci-app-openclash
 
-# clashoo
-git clone --depth 1 https://github.com/kenzok8/openwrt-clashoo.git package/luci-app-clashoo
-
-# dockerman
-# git clone --depth 1 https://github.com/lisaac/luci-app-dockerman.git package/luci-app-dockerman
-# git clone --depth 1 https://github.com/XiaoHaiSly/luci-lib-docker.git package/luci-lib-docker
-# git clone --depth 1 https://github.com/XiaoHaiSly/luci-app-dockerman.git package/luci-app-dockerman
-
 # homeproxy
 git clone --depth 1 https://github.com/sbwml/homeproxy.git package/luci-app-homeproxy
-
-# miaomiaowu
-git clone --depth 1 https://github.com/XiaoHaiSly/luci-app-miaomiaowu.git package/luci-app-miaomiaowu
 
 # OpenWrt-nikki
 git clone --depth 1 https://github.com/nikkinikki-org/OpenWrt-nikki.git package/luci-app-nikki
