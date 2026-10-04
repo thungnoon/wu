@@ -37,6 +37,10 @@ git clone --depth 1 https://github.com/nikkinikki-org/OpenWrt-momo.git package/l
 # partexp
 git clone --depth 1 https://github.com/sirpdboy/luci-app-partexp.git package/luci-app-partexp
 
+# istore
+git clone -b main --depth 1 https://github.com/linkease/istore.git package/istore
+git clone -b main --depth 1 https://github.com/linkease/istore-ui.git package/istoreiui
+
 
 echo "========================================="
 echo "DIY1 完成"
