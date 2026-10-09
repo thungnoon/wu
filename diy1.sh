@@ -37,12 +37,6 @@ git clone --depth 1 https://github.com/nikkinikki-org/OpenWrt-momo.git package/l
 # partexp
 git clone --depth 1 https://github.com/sirpdboy/luci-app-partexp.git package/luci-app-partexp
 
-# istore
-git clone --depth 1 https://github.com/linkease/istore.git package/luci-app-store
-
-# daede
-git clone --depth 1 https://github.com/kenzok8/openwrt-daede.git package/daede
-
 
 echo "========================================="
 echo "DIY1 完成"
