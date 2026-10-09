@@ -40,6 +40,10 @@ git clone --depth 1 https://github.com/sirpdboy/luci-app-partexp.git package/luc
 # istore
 git clone --depth 1 https://github.com/linkease/istore.git package/luci-app-store
 
+# daede
+git clone --depth 1 https://github.com/kenzok8/openwrt-daede.git package/luci-app-daede
+
+
 echo "========================================="
 echo "DIY1 完成"
 echo "========================================="
