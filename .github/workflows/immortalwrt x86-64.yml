@@ -56,29 +56,26 @@ jobs:
         env:
           DEBIAN_FRONTEND: noninteractive
         run: |
-          sudo -E apt-get -qq update
-
-          sudo -E apt-get -qq install \
-            ack antlr3 asciidoc autoconf automake autopoint \
-            binutils bison build-essential \
-            bzip2 ccache cmake cpio curl device-tree-compiler flex \
-            gawk gettext gcc-multilib g++-multilib \
-            git git-core gperf haveged help2man intltool \
-            libc6-dev-i386 libelf-dev libfuse-dev \
-            libglib2.0-dev libgmp3-dev libltdl-dev \
-            libmpc-dev libmpfr-dev libncurses5-dev \
-            libncursesw5-dev libpython3-dev \
-            libreadline-dev libssl-dev libtool \
-            lrzsz msmtp ninja-build p7zip p7zip-full patch \
-            pkgconf python3 python3-pyelftools \
-            python3-setuptools qemu-utils rsync \
-            scons squashfs-tools subversion swig texinfo \
-            uglifyjs unzip upx wget xmlto xxd zlib1g-dev
-
-          df -h
+          sudo timedatectl set-timezone "$TZ"
+          sudo apt update -y
+          sudo apt install -y ack antlr3 asciidoc autoconf automake autopoint binutils bison \
+            build-essential bzip2 ccache clang cmake cpio curl device-tree-compiler dwarves ecj \
+            fastjar flex gawk gettext gcc-multilib g++-multilib git gnutls-dev gperf haveged \
+            help2man intltool lib32gcc-s1 libc6-dev-i386 libelf-dev libglib2.0-dev libgmp3-dev \
+            libltdl-dev libmpc-dev libmpfr-dev libncurses-dev libpython3-dev libreadline-dev \
+            libssl-dev libtool lld llvm lrzsz mkisofs msmtp nano ninja-build p7zip p7zip-full \
+            patch pkgconf python3 python3-pip python3-ply python3-docutils python3-pyelftools \
+            qemu-utils re2c rsync scons squashfs-tools subversion swig texinfo uglifyjs upx-ucl \
+            unzip vim wget xmlto xxd zlib1g-dev zstd
+          sudo mkdir -p /workdir
+          sudo chown $USER:$GROUPS /workdir
 
       - name: 克隆 ImmortalWrt 源码
-        run: git clone --depth 1 $REPO_URL -b $REPO_BRANCH openwrt
+        working-directory: /workdir
+        run: |
+          df -hT $PWD
+          git clone $REPO_URL -b $REPO_BRANCH --single-branch --depth 1 openwrt
+          ln -sf /workdir/openwrt $GITHUB_WORKSPACE/openwrt
 
       - name: 首次自定义配置（处理 feeds.conf.default 并执行 diy1.sh）
         run: |
@@ -118,18 +115,44 @@ jobs:
       - name: 下载源码包
         run: |
           cd openwrt
-          make download -j$(nproc)
-          find dl -size -1024c -exec ls -l {} \; -exec rm -f {} \;
-          make download -j$(nproc) || make download -j1 V=s
+          rm -rf tmp/info tmp/.packageinfo tmp/.config-package.in tmp/.config-target.in
+          make defconfig
+          make download -j8
+          find dl -size -1024c -exec rm -f {} \;
+          
+      - name: 校验关键包是否入选
+        run: |
+          cd openwrt
+          echo "===== 关键包入选情况 ====="
+          grep -E "^CONFIG_PACKAGE_(daed|lucky|easytier|dockerd|docker|docker-compose|luci-app-dockermanager|luci-app-store|luci-app-quickstart|luci-app-istorex|luci-i18n-base-zh-cn)=" .config || true
+          FAILED=0
+          # 代理后端
+          grep -q "^CONFIG_PACKAGE_daed=y" .config || { echo "::error::daed 未被选中（多半是 BTF/XDP 依赖不满足）"; FAILED=1; }
+          # BTF 四件套（daed crash 的根因，缺一不可；REDUCED=y 会静默砍掉 BTF）
+          grep -q "^CONFIG_KERNEL_DEBUG_INFO_BTF=y" .config || { echo "::error::CONFIG_KERNEL_DEBUG_INFO_BTF 未开启 —— daed 必崩！"; FAILED=1; }
+          grep -q "^CONFIG_KERNEL_DEBUG_INFO=y" .config || { echo "::error::CONFIG_KERNEL_DEBUG_INFO 未开启（BTF 的前置条件）"; FAILED=1; }
+          grep -q "^CONFIG_KERNEL_DEBUG_INFO_REDUCED=y" .config && { echo "::error::CONFIG_KERNEL_DEBUG_INFO_REDUCED 仍是=y，会把 BTF 静默砍掉！"; FAILED=1; }
+          # luci-app-daede 已弃用
+          grep -q "^CONFIG_PACKAGE_luci-app-daede=y" .config && { echo "::error::luci-app-daede 应已移除，不应再被选中"; FAILED=1; }
+        
+          grep -q "^CONFIG_NEED_BPF_TOOLCHAIN=y" .config || { echo "::error::NEED_BPF_TOOLCHAIN 未生效 —— daed 工具链补丁可能没打上！"; FAILED=1; }
+          grep -q "^CONFIG_USE_LLVM_BUILD=y" .config || { echo "::error::USE_LLVM_BUILD 未生效 —— llvm-bpf 工具链不会被构建！"; FAILED=1; }
+          
+          grep -q "^CONFIG_KERNEL_DEBUG_INFO_BTF=y" .config || { echo "::error::KERNEL_DEBUG_INFO_BTF 未生效 —— daed 运行期 eBPF 将不可用！"; FAILED=1; }
+          grep -q "^CONFIG_DAED_USE_KERNEL_BTF=y" .config || { echo "::error::DAED_USE_KERNEL_BTF 未生效 —— daed BTF 源 choice 异常！"; FAILED=1; }         
 
       - name: 编译固件
         id: compile
         run: |
-          export PATH="/usr/lib/ccache:$PATH"
           cd openwrt
-          echo -e "$(nproc) thread compile"
-          make -j$(nproc) || make -j1 || make -j1 V=s
-          echo "status=success" >> $GITHUB_OUTPUT
+          export USE_CCACHE=1
+          export CCACHE_DIR="$PWD/.ccache"
+          export CCACHE_COMPILERCHECK=content
+          export CCACHE_COMPRESS=1
+          export CCACHE_MAXSIZE=2G
+          echo "编译线程数: $(nproc)"
+          make -j$(($(nproc) + 1)) || make -j1 || make -j1 V=s
+          echo "FIRMWARE=$PWD/bin/targets/x86/64" >> $GITHUB_ENV
 
       - name: 检查磁盘使用情况
         if: (!cancelled())
