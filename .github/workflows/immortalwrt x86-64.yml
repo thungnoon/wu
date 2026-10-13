@@ -79,9 +79,9 @@ jobs:
 
       - name: 首次自定义配置（处理 feeds.conf.default 并执行 diy1.sh）
         run: |
+          chmod +x $DIY1_SH
           cd openwrt
-          [ -f "../$FEEDS_CONF" ] && cp "../$FEEDS_CONF" ./
-          [ -f "../$DIY1_SH" ] && chmod +x "../$DIY1_SH" && "../$DIY1_SH"
+          $GITHUB_WORKSPACE/$DIY1_SH
 
       - name: 更新 feeds
         run: |
