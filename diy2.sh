@@ -26,17 +26,16 @@ sed -i '/telephony/d' feeds.conf.default
 # kenzok8/small —— 提供 daed 本体（自带 init.d/daed + /etc/config/daed）
 echo 'src-git small https://github.com/kenzok8/small' >> feeds.conf.default
 
-# iStore 全家桶（linkease 官方三件套，x86_64 完整支持）
-#    istore      -> luci-app-store（软件中心）
-#    nas         -> NAS 系依赖包（quickstart/istorex 的后端等）
-#    nas_luci    -> luci-app-quickstart / luci-app-istorex / luci-app-linkease
-#                   / luci-app-ddnsto / luci-app-diskman / luci-app-unishare 等
-echo 'src-git istore https://github.com/linkease/istore;main' >> feeds.conf.default
-echo 'src-git nas https://github.com/linkease/nas-packages.git;master' >> feeds.conf.default
-echo 'src-git nas_luci https://github.com/linkease/nas-packages-luci.git;main' >> feeds.conf.default
-
-echo "===== 当前 feeds.conf.default ====="
-cat feeds.conf.default
+# Docker
+rm -rf customfeeds/luci/applications/luci-app-dockerman
+git clone https://github.com/sbwml/luci-app-dockerman -b openwrt-25.12 customfeeds/luci/applications/luci-app-dockerman
+rm -rf customfeeds/packages/utils/{docker,dockerd,containerd,runc}
+git clone https://github.com/sbwml/packages_utils_docker customfeeds/packages/utils/docker
+git clone https://github.com/sbwml/packages_utils_dockerd customfeeds/packages/utils/dockerd
+git clone https://github.com/sbwml/packages_utils_containerd customfeeds/packages/utils/containerd
+# Keep the urfave CLI resources required by go:embed in the Go build directory.
+sed -i '/^MAKE_PATH:=/i GO_PKG_INSTALL_EXTRA += vendor/github.com/urfave/cli/v3/autocomplete/ vendor/github.com/urfave/cli-docs/v3/.*[.]gotmpl' customfeeds/packages/utils/containerd/Makefile
+git clone https://github.com/sbwml/packages_utils_runc customfeeds/packages/utils/runc
 
 # ==================================================
 # 2. 自适应网口
