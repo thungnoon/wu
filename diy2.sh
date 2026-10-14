@@ -20,11 +20,7 @@ rm -rf feeds/packages/net/sing-box
 rm -rf feeds/packages/net/hysteria
 rm -rf feeds/packages/net/tuic-client
 
-# 移除 IP 电话源（用不到，省下 feeds 拉取时间）
-sed -i '/telephony/d' feeds.conf.default
 
-# kenzok8/small —— 提供 daed 本体（自带 init.d/daed + /etc/config/daed）
-echo 'src-git small https://github.com/kenzok8/small' >> feeds.conf.default
 
 # ==================================================
 # 2. 自适应网口
