@@ -99,9 +99,6 @@ jobs:
           ./scripts/feeds install -a -p packages
           ./scripts/feeds install -a -p luci
           ./scripts/feeds install -a -p routing
-          ./scripts/feeds uninstall daed
-          ./scripts/feeds install -p small daed
-         
           ./scripts/feeds install -d y -p istore luci-app-store
           ./scripts/feeds install -p nas_luci luci-app-quickstart luci-app-istorex \
           luci-app-linkease luci-app-ddnsto luci-app-diskman luci-app-unishare luci-nginxer
