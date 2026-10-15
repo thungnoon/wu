@@ -53,7 +53,7 @@ git clone --depth 1 https://github.com/nikkinikki-org/OpenWrt-nikki.git package/
 git clone --depth 1 https://github.com/sirpdboy/luci-app-partexp.git package/luci-app-partexp
 
 # luci-app-daede
-git clone --depth 1 https://github.com/kenzok8/openwrt-daede.git package/luci-app-daede
+# git clone --depth 1 https://github.com/kenzok8/openwrt-daede.git package/luci-app-daede
 
 echo "========================================="
 echo "DIY1 完成"
