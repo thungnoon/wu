@@ -5,15 +5,6 @@ echo "========================================="
 echo "ImmortalWrt DIY1"
 echo "========================================="
 
-# 移除 IP 电话源（用不到，省下 feeds 拉取时间）
-sed -i '/telephony/d' feeds.conf.default
-
-# kenzok8/small —— 提供 daed 本体（自带 init.d/daed + /etc/config/daed）
-echo 'src-git daede https://github.com/kenzok8/openwrt-daede' >> feeds.conf.default
-
-echo "===== 当前 feeds.conf.default ====="
-cat feeds.conf.default
-
 # Argon
 git clone --depth 1 https://github.com/jerrykuku/luci-theme-argon.git package/luci-theme-argon
 git clone --depth 1 https://github.com/jerrykuku/luci-app-argon-config.git package/luci-app-argon-config
@@ -42,9 +33,6 @@ git clone --depth 1 https://github.com/vernesong/OpenClash.git package/luci-app-
 
 # partexp
 git clone --depth 1 https://github.com/sirpdboy/luci-app-partexp.git package/luci-app-partexp
-
-# luci-app-daede
-# git clone --depth 1 https://github.com/kenzok8/openwrt-daede.git package/luci-app-daede
 
 echo "========================================="
 echo "DIY1 完成"
