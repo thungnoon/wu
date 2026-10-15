@@ -10,6 +10,7 @@ sed -i '/telephony/d' feeds.conf.default
 
 # kenzok8/small —— 提供 daed 本体（自带 init.d/daed + /etc/config/daed）
 echo 'src-git small https://github.com/kenzok8/small' >> feeds.conf.default
+# echo 'src-git daede https://github.com/kenzok8/openwrt-daede' >> feeds.conf.default
 
 # packages / luci feed 换成 jjm2473 fork（iStoreOS 25.12 官方同款）
 sed -i 's#^src-git packages .*#src-git packages https://github.com/jjm2473/packages.git;istoreos-25.12#' feeds.conf.default
