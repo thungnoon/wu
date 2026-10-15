@@ -102,6 +102,7 @@ jobs:
         if: steps.compile.outputs.status == 'success' && !cancelled()
         run: |
           cd openwrt/bin/targets/*/*
+          rm -rf *generic-squashfs-combined.img.gz
           rm -rf *.bin *.buildinfo *rootfs.* *.json *.manifest sha256sums packages
           echo "FIRMWARE=$PWD" >> $GITHUB_ENV
           echo "status=success" >> $GITHUB_OUTPUT
