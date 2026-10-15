@@ -92,19 +92,6 @@ jobs:
           ./scripts/feeds update -a
           ./scripts/feeds install -a
 
-      - name: 安装 feeds 软件包
-        run: |
-          cd openwrt
-          # 官方源（已由 diy-part1.sh 换成 jjm2473 fork）：全量
-          ./scripts/feeds install -a -p packages
-          ./scripts/feeds install -a -p luci
-          ./scripts/feeds install -a -p routing
-          ./scripts/feeds install -d y -p istore luci-app-store
-          ./scripts/feeds install -p nas_luci luci-app-quickstart luci-app-istorex \
-          luci-app-linkease luci-app-ddnsto luci-app-diskman luci-app-unishare luci-nginxer
-          ./scripts/feeds install -p nas_luci luci-app-dockermanager luci-lib-linkeaseauth
-          ./scripts/feeds install -p nas dockermanager linkease-app-entry
-
       - name: 缓存 dl 目录
         uses: actions/cache@v5
         with:
@@ -131,9 +118,9 @@ jobs:
       - name: 下载源码包
         run: |
           cd openwrt
-          rm -rf tmp/info tmp/.packageinfo tmp/.config-package.in tmp/.config-target.in
           make defconfig
           make download -j8
+          find dl -size -1024c -exec rm -f {} \;
           find dl -size -1024c -exec rm -f {} \;
 
       - name: 编译固件
