@@ -9,17 +9,7 @@ echo "========================================="
 sed -i '/telephony/d' feeds.conf.default
 
 # kenzok8/small —— 提供 daed 本体（自带 init.d/daed + /etc/config/daed）
-echo 'src-git small https://github.com/kenzok8/small' >> feeds.conf.default
-# echo 'src-git daede https://github.com/kenzok8/openwrt-daede' >> feeds.conf.default
-
-# packages / luci feed 换成 jjm2473 fork（iStoreOS 25.12 官方同款）
-sed -i 's#^src-git packages .*#src-git packages https://github.com/jjm2473/packages.git;istoreos-25.12#' feeds.conf.default
-sed -i 's#^src-git luci .*#src-git luci https://github.com/jjm2473/luci.git;istoreos-25.12#' feeds.conf.default
-
-# iStore 全家桶（linkease 官方三件套，x86_64 完整支持）
-echo 'src-git istore https://github.com/linkease/istore;main' >> feeds.conf.default
-echo 'src-git nas https://github.com/linkease/nas-packages.git;master' >> feeds.conf.default
-echo 'src-git nas_luci https://github.com/linkease/nas-packages-luci.git;main' >> feeds.conf.default
+echo 'src-git daede https://github.com/kenzok8/openwrt-daede' >> feeds.conf.default
 
 echo "===== 当前 feeds.conf.default ====="
 cat feeds.conf.default
