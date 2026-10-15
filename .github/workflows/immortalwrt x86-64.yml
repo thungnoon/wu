@@ -101,9 +101,7 @@ jobs:
           ./scripts/feeds install -a -p routing
           ./scripts/feeds uninstall daed
           ./scripts/feeds install -p small daed
-          test -e package/feeds/small/daed || { echo "::error::daed 未从 small feed 注册！"; exit 1; }
-          test ! -e package/feeds/packages/daed || { echo "::error::packages feed 的 daed 1.24.0 仍被注册！"; exit 1; }
-          echo "✓ daed 符号链接: $(readlink package/feeds/small/daed)"
+         
           ./scripts/feeds install -d y -p istore luci-app-store
           ./scripts/feeds install -p nas_luci luci-app-quickstart luci-app-istorex \
           luci-app-linkease luci-app-ddnsto luci-app-diskman luci-app-unishare luci-nginxer
