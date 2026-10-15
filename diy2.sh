@@ -109,4 +109,21 @@ fi
 # ==================================================
 sed -i 's/luci-theme-bootstrap/luci-theme-argon/g' feeds/luci/collections/luci/Makefile || true
 
+# ==================================================
+# 7. 预置正确的 APK 软件源与清理旧配置
+# ==================================================
+echo "正在注入正确的 APK 软件源配置..."
+mkdir -p package/base-files/files/etc/apk
+cat > package/base-files/files/etc/apk/repositories.yaml << 'EOF'
+src/gz openwrt_core https://downloads.immortalwrt.org/releases/25.12-SNAPSHOT/targets/x86/64/packages
+src/gz openwrt_base https://downloads.immortalwrt.org/releases/25.12-SNAPSHOT/packages/x86_64/base
+src/gz openwrt_luci https://downloads.immortalwrt.org/releases/25.12-SNAPSHOT/packages/x86_64/luci
+src/gz openwrt_packages https://downloads.immortalwrt.org/releases/25.12-SNAPSHOT/packages/x86_64/packages
+src/gz openwrt_routing https://downloads.immortalwrt.org/releases/25.12-SNAPSHOT/packages/x86_64/routing
+src/gz openwrt_telephony https://downloads.immortalwrt.org/releases/25.12-SNAPSHOT/packages/x86_64/telephony
+EOF
+
+# 顺便清理旧版可能残留的 opkg 配置文件
+rm -rf package/base-files/files/etc/opkg
+
 echo "✅ 修复完成！"
