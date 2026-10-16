@@ -123,7 +123,7 @@ jobs:
           tag_name: ${{ env.date1 }}_X86-64
           body: |
             X86-64 平台
-            openwrt-25.12 源码
+            25.12 源码
             默认 IP : 192.168.5.1
           files: ${{ env.FIRMWARE }}/*
 
