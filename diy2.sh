@@ -110,21 +110,22 @@ sed -i 's/luci-theme-bootstrap/luci-theme-argon/g' feeds/luci/collections/luci/M
 # ==================================================
 # 7. 预置正确的 APK 软件源与深度清理 opkg 残留
 # ==================================================
-echo "正在注入正确的 APK 软件源配置并清理 opkg..."
+echo "正在注入经过实测验证的 25.12 APK 软件源配置并清理 opkg..."
 
-# 物理干掉 opkg 构建目标，防止固件生成带 packages.adb 的错误 distfeeds.list
+# 物理干掉 opkg 构建目标
 rm -rf package/system/opkg 2>/dev/null || true
 rm -rf package/base-files/files/etc/opkg 2>/dev/null || true
 
-# 写入符合 25.12 apk 标准规范的纯文本 repositories 文件
+# 写入带有 packages.adb 结尾以及精确路径的实测标准 repositories 文件
 mkdir -p package/base-files/files/etc/apk
 cat > package/base-files/files/etc/apk/repositories << 'EOF'
-https://downloads.immortalwrt.org/releases/25.12-SNAPSHOT/targets/x86/64/
-https://downloads.immortalwrt.org/releases/25.12-SNAPSHOT/packages/x86_64/base/
-https://downloads.immortalwrt.org/releases/25.12-SNAPSHOT/packages/x86_64/luci/
-https://downloads.immortalwrt.org/releases/25.12-SNAPSHOT/packages/x86_64/packages/
-https://downloads.immortalwrt.org/releases/25.12-SNAPSHOT/packages/x86_64/routing/
-https://downloads.immortalwrt.org/releases/25.12-SNAPSHOT/packages/x86_64/telephony/
+https://downloads.immortalwrt.org/releases/25.12-SNAPSHOT/targets/x86/64/packages/packages.adb
+https://downloads.immortalwrt.org/releases/25.12-SNAPSHOT/packages/x86_64/base/packages.adb
+https://downloads.immortalwrt.org/releases/25.12-SNAPSHOT/targets/x86/64/kmods/6.12.103-1-0413601b1c3f0490e17f340fe09229ea/packages.adb
+https://downloads.immortalwrt.org/releases/25.12-SNAPSHOT/packages/x86_64/luci/packages.adb
+https://downloads.immortalwrt.org/releases/25.12-SNAPSHOT/packages/x86_64/packages/packages.adb
+https://downloads.immortalwrt.org/releases/25.12-SNAPSHOT/packages/x86_64/routing/packages.adb
+https://downloads.immortalwrt.org/releases/25.12-SNAPSHOT/packages/x86_64/telephony/packages.adb
 EOF
 
-echo "✅ 修复完成！"
+echo "✅ 全部修复与注入完成！"
