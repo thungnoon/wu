@@ -83,7 +83,7 @@ sed -i 's/^root:[^:]*:/root::/' package/base-files/files/etc/shadow
 # 5. 修改固件版本描述
 # ==================================================
 COMPILE_DATE=$(TZ='Asia/Shanghai' date +%Y.%m.%d)
-CUSTOM_VERSION="OpenWrt （${COMPILE_DATE} compiled by thungnoon)"
+CUSTOM_VERSION="ImmortalWrt （${COMPILE_DATE} compiled by thungnoon)"
 CUSTOM_REVISION="${COMPILE_DATE} compiled by thungnoon"
 
 if [ -f "include/version.mk" ]; then
