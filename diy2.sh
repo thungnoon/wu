@@ -76,29 +76,29 @@ chmod +x "$BOARD_D_PATH/02_network"
 # ==================================================
 echo "修改系统默认配置..."
 sed -i 's/192.168.1.1/192.168.5.1/g' package/base-files/files/bin/config_generate
-sed -i "s/hostname='ImmortalWrt'/hostname='ImmortalWrt'/g" package/base-files/files/bin/config_generate
+sed -i "s/hostname='ImmortalWrt'/hostname='OpenWrt'/g" package/base-files/files/bin/config_generate
 sed -i 's/^root:[^:]*:/root::/' package/base-files/files/etc/shadow
 
 # ==================================================
 # 5. 修改固件版本描述
 # ==================================================
 COMPILE_DATE=$(TZ='Asia/Shanghai' date +%Y.%m.%d)
-CUSTOM_VERSION="ImmortalWrt （${COMPILE_DATE} compiled by thungnoon)"
+CUSTOM_VERSION="OpenWrt （${COMPILE_DATE} compiled by thungnoon)"
 CUSTOM_REVISION="${COMPILE_DATE} compiled by thungnoon"
 
 if [ -f "include/version.mk" ]; then
-    sed --follow-symlinks -i -E "s,VERSION_DIST(:=|=).*本地?,VERSION_DIST:=ImmortalWrt,g" include/version.mk
-    sed --follow-symlinks -i "s,ImmortalWrt,ImmortalWrt,g" include/version.mk
+    sed --follow-symlinks -i -E "s,VERSION_DIST(:=|=).*本地?,VERSION_DIST:=OpenWrt,g" include/version.mk
+    sed --follow-symlinks -i "s,ImmortalWrt,OpenWrt,g" include/version.mk
     sed --follow-symlinks -i "s,VERSION_NUMBER:=.*,VERSION_NUMBER:=${COMPILE_DATE},g" include/version.mk
     sed --follow-symlinks -i "s,VERSION_CODE:=.*,VERSION_CODE:=compiled by thungnoon,g" include/version.mk
-    sed --follow-symlinks -i "s,VERSION_REPO:=.*,VERSION_REPO:=ImmortalWrt,g" include/version.mk
+    sed --follow-symlinks -i "s,VERSION_REPO:=.*,VERSION_REPO:=OpenWrt,g" include/version.mk
     sed --follow-symlinks -i "s,VERSION_REVISION:=.*,VERSION_REVISION:=${CUSTOM_REVISION},g" include/version.mk
 fi
 
 if [ -d "package/base-files/files/etc" ]; then
     if [ -f "package/base-files/files/etc/openwrt_release" ]; then
         sed --follow-symlinks -i "s,DISTRIB_DESCRIPTION='.*',DISTRIB_DESCRIPTION='${CUSTOM_VERSION}',g" package/base-files/files/etc/openwrt_release
-        sed --follow-symlinks -i "s,DISTRIB_ID='.*',DISTRIB_ID='ImmortalWrt',g" package/base-files/files/etc/openwrt_release
+        sed --follow-symlinks -i "s,DISTRIB_ID='.*',DISTRIB_ID='OpenWrt',g" package/base-files/files/etc/openwrt_release
         sed --follow-symlinks -i "s,DISTRIB_REVISION='.*',DISTRIB_REVISION='${CUSTOM_REVISION}',g" package/base-files/files/etc/openwrt_release
     fi
     echo "${CUSTOM_REVISION}" > "package/base-files/files/etc/openwrt_version"
