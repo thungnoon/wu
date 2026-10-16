@@ -24,8 +24,6 @@ rm -rf feeds/packages/net/tuic-client
 # 2. 安全更新 Golang（不破坏 apk 依赖链）
 # ==================================================
 echo "更新 Golang 版本..."
-# 如果确实需要 sbwml 的高版本 Go，采用覆盖特定目录或通过 feeds 补丁，
-# 而不是粗暴删除 feeds/packages/lang/golang 根目录导致签名工具链失效
 if [ -d "feeds/packages/lang/golang" ]; then
     rm -rf feeds/packages/lang/golang
 fi
@@ -110,20 +108,23 @@ fi
 sed -i 's/luci-theme-bootstrap/luci-theme-argon/g' feeds/luci/collections/luci/Makefile || true
 
 # ==================================================
-# 7. 预置正确的 APK 软件源与清理旧配置
+# 7. 预置正确的 APK 软件源与深度清理 opkg 残留
 # ==================================================
-echo "正在注入正确的 APK 软件源配置..."
-mkdir -p package/base-files/files/etc/apk
-cat > package/base-files/files/etc/apk/repositories.yaml << 'EOF'
-src/gz openwrt_core https://downloads.immortalwrt.org/releases/25.12-SNAPSHOT/targets/x86/64/packages
-src/gz openwrt_base https://downloads.immortalwrt.org/releases/25.12-SNAPSHOT/packages/x86_64/base
-src/gz openwrt_luci https://downloads.immortalwrt.org/releases/25.12-SNAPSHOT/packages/x86_64/luci
-src/gz openwrt_packages https://downloads.immortalwrt.org/releases/25.12-SNAPSHOT/packages/x86_64/packages
-src/gz openwrt_routing https://downloads.immortalwrt.org/releases/25.12-SNAPSHOT/packages/x86_64/routing
-src/gz openwrt_telephony https://downloads.immortalwrt.org/releases/25.12-SNAPSHOT/packages/x86_64/telephony
-EOF
+echo "正在注入正确的 APK 软件源配置并清理 opkg..."
 
-# 顺便清理旧版可能残留的 opkg 配置文件
-rm -rf package/base-files/files/etc/opkg
+# 物理干掉 opkg 构建目标，防止固件生成带 packages.adb 的错误 distfeeds.list
+rm -rf package/system/opkg 2>/dev/null || true
+rm -rf package/base-files/files/etc/opkg 2>/dev/null || true
+
+# 写入符合 25.12 apk 标准规范的纯文本 repositories 文件
+mkdir -p package/base-files/files/etc/apk
+cat > package/base-files/files/etc/apk/repositories << 'EOF'
+https://downloads.immortalwrt.org/releases/25.12-SNAPSHOT/targets/x86/64/
+https://downloads.immortalwrt.org/releases/25.12-SNAPSHOT/packages/x86_64/base/
+https://downloads.immortalwrt.org/releases/25.12-SNAPSHOT/packages/x86_64/luci/
+https://downloads.immortalwrt.org/releases/25.12-SNAPSHOT/packages/x86_64/packages/
+https://downloads.immortalwrt.org/releases/25.12-SNAPSHOT/packages/x86_64/routing/
+https://downloads.immortalwrt.org/releases/25.12-SNAPSHOT/packages/x86_64/telephony/
+EOF
 
 echo "✅ 修复完成！"
