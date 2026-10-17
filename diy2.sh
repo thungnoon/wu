@@ -89,7 +89,7 @@ if [ -f "include/version.mk" ]; then
     sed --follow-symlinks -i "s,ImmortalWrt,OpenWrt,g" include/version.mk
     sed --follow-symlinks -i "s,VERSION_NUMBER:=.*,VERSION_NUMBER:=${COMPILE_DATE},g" include/version.mk
     sed --follow-symlinks -i "s,VERSION_CODE:=.*,VERSION_CODE:=compiled by thungnoon,g" include/version.mk
-    # 注意：这里绝不能再改 VERSION_REPO，否则会破坏 distfeeds 的 URL 生成！
+    # 注意：绝对不能再改 VERSION_REPO，否则会破坏 distfeeds 的 URL 生成！
     sed --follow-symlinks -i "s,VERSION_REVISION:=.*,VERSION_REVISION:=${CUSTOM_REVISION},g" include/version.mk
 fi
 
@@ -108,15 +108,65 @@ fi
 sed -i 's/luci-theme-bootstrap/luci-theme-argon/g' feeds/luci/collections/luci/Makefile || true
 
 # ==================================================
-# 7. 清理 opkg 残留，确保 apk 源由系统正常动态管理
+# 7. 清理 opkg 残留与补全 apk 验签/OpenSSL 组件
 # ==================================================
-echo "正在清理 opkg 残留..."
-
-# 物理干掉老旧的 opkg 组件
+echo "清理 opkg 残留并补全 apk/openssl 验证依赖..."
 rm -rf package/system/opkg 2>/dev/null || true
 rm -rf package/base-files/files/etc/opkg 2>/dev/null || true
-
-# 移除静态源文件，交由系统根据源码和内核哈希自主生成正确的完整 URL 源
 rm -f package/base-files/files/etc/apk/repositories 2>/dev/null || true
+
+# 确保 apk-openssl 与 keyring 依赖被编译入固件
+sed -i '/CONFIG_PACKAGE_apk-openssl/d' .config 2>/dev/null || true
+echo "CONFIG_PACKAGE_apk-openssl=y" >> .config
+sed -i '/CONFIG_PACKAGE_openwrt-keyring/d' .config 2>/dev/null || true
+echo "CONFIG_PACKAGE_openwrt-keyring=y" >> .config
+sed -i '/CONFIG_PACKAGE_usign/d' .config 2>/dev/null || true
+echo "CONFIG_PACKAGE_usign=y" >> .config
+
+# ==================================================
+# 8. 注入 Docker 运行所需的 Linux 内核底层依赖
+# ==================================================
+echo "注入 Docker 所需内核模块支持..."
+cat << EOF >> .config
+CONFIG_KERNEL_CGROUPS=y
+CONFIG_KERNEL_NAMESPACES=y
+CONFIG_KERNEL_NET_NS=y
+CONFIG_PACKAGE_kmod-ipt-raw=y
+CONFIG_PACKAGE_kmod-veth=y
+EOF
+
+# ==================================================
+# 9. 智能动态源替换（保留系统算的精准路径，自动转向 vsean 加速）
+# ==================================================
+echo "配置 apk 智能动态镜像加速..."
+
+mkdir -p package/base-files/files/etc/apk/repositories.d/
+
+# 1. 编译期预置替换（如果模版已生成）
+DISTFEEDS_TEMPLATE="package/base-files/files/etc/apk/repositories.d/distfeeds.list"
+if [ -f "$DISTFEEDS_TEMPLATE" ]; then
+    sed -i 's#https://downloads.immortalwrt.org#https://mirrors.vsean.net/openwrt#g' "$DISTFEEDS_TEMPLATE"
+fi
+
+# 2. 开机首刷自适应替换（捕获系统开机自动生成的完整 URL，并将域名重定向至国内镜像）
+INIT_SCRIPT="package/base-files/files/etc/uci-defaults/99-fix-apk-vsean-mirror"
+cat > "$INIT_SCRIPT" << 'EOF'
+#!/bin/sh
+TARGET_FILE="/etc/apk/repositories.d/distfeeds.list"
+if [ -f "$TARGET_FILE" ]; then
+    sed -i 's#https://downloads.immortalwrt.org#https://mirrors.vsean.net/openwrt#g' "$TARGET_FILE"
+fi
+exit 0
+EOF
+chmod +x "$INIT_SCRIPT"
+
+# 3. 自动清理锁文件，避免后台锁卡死 apk update
+LOCK_CLEAN_SCRIPT="package/base-files/files/etc/uci-defaults/98-clean-apk-locks"
+cat > "$LOCK_CLEAN_SCRIPT" << 'EOF'
+#!/bin/sh
+rm -f /var/lock/apk* /etc/apk/lock 2>/dev/null
+exit 0
+EOF
+chmod +x "$LOCK_CLEAN_SCRIPT"
 
 echo "✅ 全部修复与注入完成！"
