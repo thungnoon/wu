@@ -34,6 +34,8 @@ git clone --depth 1 https://github.com/vernesong/OpenClash.git package/luci-app-
 # partexp
 git clone --depth 1 https://github.com/sirpdboy/luci-app-partexp.git package/luci-app-partexp
 
+# docker
+git clone --depth 1 https://github.com/sbwml/luci-app-dockerman.git package/luci-app-dockerman
 
 echo "========================================="
 echo "DIY1 完成"
