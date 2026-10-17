@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-echo "🚀 开始注入 ImmortalWrt 25.12 优化补丁（修复 APK 与 Golang）"
+echo "🚀 开始注入 ImmortalWrt 25.12 优化补丁（修复 APK 与版本描述）"
 
 # ==================================================
 # 1. 调整冲突插件清理（严禁直接 rm -rf 整个 feeds 语言目录）
@@ -78,7 +78,7 @@ sed -i "s/hostname='ImmortalWrt'/hostname='OpenWrt'/g" package/base-files/files/
 sed -i 's/^root:[^:]*:/root::/' package/base-files/files/etc/shadow
 
 # ==================================================
-# 5. 修改固件版本描述
+# 5. 修改固件版本描述（已修正：严禁修改 VERSION_REPO）
 # ==================================================
 COMPILE_DATE=$(TZ='Asia/Shanghai' date +%Y.%m.%d)
 CUSTOM_VERSION="OpenWrt （${COMPILE_DATE} compiled by thungnoon)"
@@ -89,7 +89,7 @@ if [ -f "include/version.mk" ]; then
     sed --follow-symlinks -i "s,ImmortalWrt,OpenWrt,g" include/version.mk
     sed --follow-symlinks -i "s,VERSION_NUMBER:=.*,VERSION_NUMBER:=${COMPILE_DATE},g" include/version.mk
     sed --follow-symlinks -i "s,VERSION_CODE:=.*,VERSION_CODE:=compiled by thungnoon,g" include/version.mk
-    sed --follow-symlinks -i "s,VERSION_REPO:=.*,VERSION_REPO:=OpenWrt,g" include/version.mk
+    # 注意：这里绝不能再改 VERSION_REPO，否则会破坏 distfeeds 的 URL 生成！
     sed --follow-symlinks -i "s,VERSION_REVISION:=.*,VERSION_REVISION:=${CUSTOM_REVISION},g" include/version.mk
 fi
 
@@ -108,15 +108,15 @@ fi
 sed -i 's/luci-theme-bootstrap/luci-theme-argon/g' feeds/luci/collections/luci/Makefile || true
 
 # ==================================================
-# 7. 彻底清理 opkg 残留，交由系统动态管理 APK 源
+# 7. 清理 opkg 残留，确保 apk 源由系统正常动态管理
 # ==================================================
-echo "正在清理 opkg 残留，确保 apk 动态源由系统正常接管..."
+echo "正在清理 opkg 残留..."
 
-# 物理干掉老旧的 opkg 组件，防止与新版 apk 体系冲突
+# 物理干掉老旧的 opkg 组件
 rm -rf package/system/opkg 2>/dev/null || true
 rm -rf package/base-files/files/etc/opkg 2>/dev/null || true
 
-# 移除可能残留的静态源文件，完全信任官方基于动态内核哈希生成的 distfeeds 机制
+# 移除静态源文件，交由系统根据源码和内核哈希自主生成正确的完整 URL 源
 rm -f package/base-files/files/etc/apk/repositories 2>/dev/null || true
 
 echo "✅ 全部修复与注入完成！"
