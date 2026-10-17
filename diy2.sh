@@ -20,6 +20,14 @@ rm -rf feeds/packages/net/sing-box
 rm -rf feeds/packages/net/hysteria
 rm -rf feeds/packages/net/tuic-client
 
+# Docker
+rm -rf customfeeds/luci/applications/luci-app-dockerman
+git clone https://github.com/sbwml/luci-app-dockerman -b openwrt-25.12 customfeeds/luci/applications/luci-app-dockerman
+rm -rf customfeeds/packages/utils/{docker,dockerd,containerd,runc}
+git clone https://github.com/sbwml/packages_utils_docker customfeeds/packages/utils/docker
+git clone https://github.com/sbwml/packages_utils_dockerd customfeeds/packages/utils/dockerd
+git clone https://github.com/sbwml/packages_utils_containerd customfeeds/packages/utils/containerd
+
 # ==================================================
 # 2. 安全更新 Golang（不破坏 apk 依赖链）
 # ==================================================
