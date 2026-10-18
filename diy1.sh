@@ -35,7 +35,10 @@ git clone --depth 1 https://github.com/vernesong/OpenClash.git package/luci-app-
 git clone --depth 1 https://github.com/sirpdboy/luci-app-partexp.git package/luci-app-partexp
 
 # docker
-git clone --depth 1 https://github.com/sbwml/luci-app-dockerman.git package/luci-app-dockerman
+git clone https://github.com/sbwml/luci-app-dockerman -b openwrt-25.12 package/luci-app-dockerman
+git clone https://github.com/sbwml/packages_utils_docker package/docker
+git clone https://github.com/sbwml/packages_utils_dockerd package/dockerd
+git clone https://github.com/sbwml/packages_utils_containerd package/containerd
 
 echo "========================================="
 echo "DIY1 完成"
