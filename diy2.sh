@@ -4,9 +4,9 @@ set -e
 echo "🚀 开始注入 ImmortalWrt 25.12 优化补丁（品牌校正、APK 加速与 Docker 底座）"
 
 # ==================================================
-# 1. 冲突插件清理与 Go 毒瘤物理抹除（彻底杜绝隐式依赖与编译报错）
+# 1. 冲突插件清理与 Go/Rust 编译毒瘤物理抹除
 # ==================================================
-echo "清理冲突插件与物理抹除 Go 毒瘤..."
+echo "清理冲突插件与物理抹除 Go/Rust 毒瘤..."
 
 # 1.1 清理冲突主题与同名插件
 rm -rf feeds/luci/themes/luci-theme-argon
@@ -17,18 +17,20 @@ rm -rf feeds/luci/applications/luci-app-homeproxy
 rm -rf feeds/packages/net/lucky
 rm -rf feeds/packages/utils/lucky
 
-# 1.2 物理抹除独立 Go 编译毒瘤（无论 Makefile 如何 select，没有源码就只能跳过）
+# 1.2 物理抹除所有独立 Go/Rust 编译毒瘤（没有源码，Makefile 无论如何 select 都只能跳过）
 rm -rf feeds/packages/net/geoview package/feeds/packages/geoview
 rm -rf feeds/packages/net/v2raya package/feeds/packages/v2raya
 rm -rf feeds/packages/net/hysteria package/feeds/packages/hysteria
 rm -rf feeds/packages/net/tuic-client package/feeds/packages/tuic-client
 rm -rf feeds/packages/net/adguardhome package/feeds/packages/adguardhome
 rm -rf feeds/packages/net/v2ray-plugin package/feeds/packages/v2ray-plugin
+rm -rf feeds/packages/net/shadowsocks-rust package/feeds/packages/shadowsocks-rust
+rm -rf feeds/packages/net/simple-obfs package/feeds/packages/simple-obfs
 
 # 1.3 Docker 组件：【切勿误删】保留 dockerd / containerd / runc 源码，仅清理多余的 dockerman 重复定义
 rm -rf feeds/luci/applications/luci-app-dockerman
 
-# 保留 PassWall 核心（依赖 Sing-Box/Xray 运行，物理删掉独立 hysteria 绝无影响）
+# 保留 PassWall 核心（依赖 Sing-Box/Xray 运行，物理删掉独立依赖包绝无影响）
 # rm -rf feeds/luci/applications/luci-app-passwall
 # rm -rf feeds/packages/net/xray-core
 # rm -rf feeds/packages/net/sing-box
@@ -172,7 +174,7 @@ EOF
 chmod +x "$LOCK_CLEAN_SCRIPT"
 
 # ==================================================
-# 9. 统一注入依赖与硬编码屏蔽（构建安全防线）
+# 9. 统一注入依赖与硬编码屏蔽（构建防爆安全防线）
 # ==================================================
 echo "写入系统依赖强化与硬编码黑名单..."
 cat << EOF >> .config
@@ -201,6 +203,8 @@ CONFIG_PACKAGE_luci-app-smartdns=n
 CONFIG_PACKAGE_smartdns=n
 CONFIG_PACKAGE_v2ray-plugin=n
 CONFIG_PACKAGE_luci-app-v2ray-plugin=n
+CONFIG_PACKAGE_shadowsocks-rust=n
+CONFIG_PACKAGE_simple-obfs=n
 EOF
 
 echo "✅ 全部修复与注入完成！"
