@@ -4,7 +4,7 @@ set -e
 echo "🚀 开始注入 ImmortalWrt 25.12 优化补丁（品牌校正、APK 加速与 Docker 底座）"
 
 # ==================================================
-# 1. 冲突插件清理与 Go/Rust 编译毒瘤物理抹除
+# 1. 冲突插件清理
 # ==================================================
 echo "清理冲突插件与物理抹除 Go/Rust 毒瘤..."
 
@@ -22,8 +22,6 @@ rm -rf feeds/packages/net/sing-box
 rm -rf feeds/packages/net/hysteria
 rm -rf feeds/packages/net/tuic-client
 
-# 1.2 Docker 组件：【切勿误删】保留 dockerd / containerd / runc 源码，仅清理多余的 dockerman 重复定义
-rm -rf feeds/luci/applications/luci-app-dockerman
 
 # ==================================================
 # 2. 安全更新 Golang（不破坏 apk 依赖链）
@@ -163,20 +161,19 @@ exit 0
 EOF
 chmod +x "$LOCK_CLEAN_SCRIPT"
 
-# ==================================================
-# 9. 统一注入依赖与硬编码屏蔽（构建防爆安全防线）
+
 # ==================================================
 echo "写入系统依赖强化与硬编码黑名单..."
 cat << EOF >> .config
-# --- Docker 内核模块与运行组件支持 ---
+# --- 容器内核底层支持（保留内核开关，不编译具体二进制大包） ---
 CONFIG_KERNEL_CGROUPS=y
 CONFIG_KERNEL_NAMESPACES=y
 CONFIG_KERNEL_NET_NS=y
 CONFIG_PACKAGE_kmod-ipt-raw=y
 CONFIG_PACKAGE_kmod-veth=y
-CONFIG_PACKAGE_runc=y
-CONFIG_PACKAGE_dockerd=y
-CONFIG_PACKAGE_containerd=y
+# CONFIG_PACKAGE_runc is not set
+# CONFIG_PACKAGE_dockerd is not set
+# CONFIG_PACKAGE_containerd is not set
 EOF
 
 echo "✅ 全部修复与注入完成！"
