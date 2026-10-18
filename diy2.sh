@@ -17,15 +17,7 @@ rm -rf feeds/luci/applications/luci-app-homeproxy
 rm -rf feeds/packages/net/lucky
 rm -rf feeds/packages/utils/lucky
 
-# 1.2 物理抹除所有独立 Go/Rust 编译毒瘤（没有源码，Makefile 无论如何 select 都只能跳过）
-rm -rf feeds/packages/net/geoview package/feeds/packages/geoview
-rm -rf feeds/packages/net/v2raya package/feeds/packages/v2raya
-rm -rf feeds/packages/net/hysteria package/feeds/packages/hysteria
-rm -rf feeds/packages/net/tuic-client package/feeds/packages/tuic-client
-rm -rf feeds/packages/net/adguardhome package/feeds/packages/adguardhome
-rm -rf feeds/packages/net/v2ray-plugin package/feeds/packages/v2ray-plugin
-rm -rf feeds/packages/net/shadowsocks-rust package/feeds/packages/shadowsocks-rust
-rm -rf feeds/packages/net/simple-obfs package/feeds/packages/simple-obfs
+
 
 # 1.3 Docker 组件：【切勿误删】保留 dockerd / containerd / runc 源码，仅清理多余的 dockerman 重复定义
 rm -rf feeds/luci/applications/luci-app-dockerman
@@ -187,24 +179,6 @@ CONFIG_PACKAGE_kmod-veth=y
 CONFIG_PACKAGE_runc=y
 CONFIG_PACKAGE_dockerd=y
 CONFIG_PACKAGE_containerd=y
-
-# --- 物理硬编码屏蔽编译毒瘤与冗余组件 ---
-CONFIG_PACKAGE_luci-app-geoview=n
-CONFIG_PACKAGE_geoview=n
-CONFIG_PACKAGE_luci-app-v2raya=n
-CONFIG_PACKAGE_v2raya=n
-CONFIG_PACKAGE_hysteria=n
-CONFIG_PACKAGE_luci-app-hysteria=n
-CONFIG_PACKAGE_tuic-client=n
-CONFIG_PACKAGE_adguardhome=n
-CONFIG_PACKAGE_luci-app-adguardhome=n
-CONFIG_PACKAGE_luci-app-netdata=n
-CONFIG_PACKAGE_luci-app-smartdns=n
-CONFIG_PACKAGE_smartdns=n
-CONFIG_PACKAGE_v2ray-plugin=n
-CONFIG_PACKAGE_luci-app-v2ray-plugin=n
-CONFIG_PACKAGE_shadowsocks-rust=n
-CONFIG_PACKAGE_simple-obfs=n
 EOF
 
 echo "✅ 全部修复与注入完成！"
