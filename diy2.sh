@@ -25,7 +25,7 @@ rm -rf feeds/packages/net/tuic-client
 rm -rf package/feeds/packages/tuic-client
 
 rm -rf feeds/luci/applications/luci-app-dockerman
-rm -rf feeds/packages/utils/docker
+# rm -rf feeds/packages/utils/docker
 # rm -rf feeds/packages/utils/dockerd
 # rm -rf feeds/packages/utils/containerd
 # rm -rf feeds/packages/utils/runc
