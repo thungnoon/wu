@@ -35,10 +35,14 @@ git clone --depth 1 https://github.com/vernesong/OpenClash.git package/luci-app-
 git clone --depth 1 https://github.com/sirpdboy/luci-app-partexp.git package/luci-app-partexp
 
 # docker
-git clone https://github.com/sbwml/luci-app-dockerman -b openwrt-25.12 package/luci-app-dockerman
-git clone https://github.com/sbwml/packages_utils_docker package/docker
-git clone https://github.com/sbwml/packages_utils_dockerd package/dockerd
-git clone https://github.com/sbwml/packages_utils_containerd package/containerd
+# 1. sbwml 针对 25.12 优化的 Docker 界面与底层组件
+git clone --depth 1 https://github.com/sbwml/luci-app-dockerman -b openwrt-25.12 package/luci-app-dockerman
+git clone --depth 1 https://github.com/sbwml/packages_utils_docker package/docker
+git clone --depth 1 https://github.com/sbwml/packages_utils_dockerd package/dockerd
+git clone --depth 1 https://github.com/sbwml/packages_utils_containerd package/containerd
+
+# 2. 其它自定义插件（例如磁盘自动分区扩展）
+git clone --depth 1 https://github.com/sirpdboy/luci-app-partexp.git package/luci-app-partexp
 
 echo "========================================="
 echo "DIY1 完成"
