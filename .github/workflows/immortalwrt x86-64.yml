@@ -45,6 +45,7 @@ jobs:
         run: |
           sudo timedatectl set-timezone "$TZ"
           echo "date1=$(date +'%Y.%m.%d')" >> $GITHUB_ENV
+          echo "date2=$(date +'%Y.%m.%d')" >> $GITHUB_ENV
 
       - name: 安装编译依赖
         env:
@@ -109,10 +110,8 @@ jobs:
       - name: 上传固件 Artifact
         uses: actions/upload-artifact@main
         if: env.UPLOAD_FIRMWARE == 'true' && steps.organize.outputs.status == 'success' && !cancelled()
-        run: |
-          echo "已整理固件"
         with:
-          name: ImmortalWrt_x86-64_${{ env.date1 }}
+          name: ImmortalWrt_X86_64
           path: ${{ env.FIRMWARE }}
 
       - name: 发布到 GitHub Releases
@@ -121,29 +120,20 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ImmortalWrt_x86-64_${{ env.date1 }}
-          name: ImmortalWrt 25.12 x86-64 (${{ env.date1 }})
+          tag_name: X86_64_ImmortalWrt_25.12
+          name: ImmortalWrt 25.12 x86_64 稳定精简版
           body: |
-            平台架构 : x86-64
-            固件源码 : ImmortalWrt 25.12
-            默认 IP  : 192.168.5.1
-            编译日期 : ${{ env.date1 }}
+            平台架构：X86-64
+            源码分支：ImmortalWrt 25.12
+            默认网关 IP：192.168.5.1
+            集成特性：Docker / eBPF / 纯净官方底座
           files: ${{ env.FIRMWARE }}/*
 
       - name: 清理历史 Releases 与 Artifacts
         uses: ophub/delete-releases-workflows@main
         if: env.UPLOAD_RELEASE == 'true' && !cancelled()
-        run: |
-          echo "正在清理历史构件..."
         with:
           delete_releases: true
           releases_keep_latest: 15
           delete_tags: true
           gh_token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: 删除无用 Artifacts
-        uses: geekyeggo/delete-artifact@main
-        run: |
-          echo "清理临时存储"
-        with:
-          name: bin-archive
