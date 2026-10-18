@@ -5,6 +5,16 @@ echo "========================================="
 echo "ImmortalWrt DIY1"
 echo "========================================="
 
+#  每次克隆前，先安全清理可能残留的目标目录（彻底杜绝 128 报错）
+rm -rf package/luci-app-argon-config
+rm -rf package/luci-app-poweroffdevice
+rm -rf package/luci-app-openclash
+rm -rf package/luci-app-partexp
+rm -rf package/luci-app-dockerman
+rm -rf package/docker
+rm -rf package/dockerd
+rm -rf package/containerd
+
 # Argon
 git clone --depth 1 https://github.com/jerrykuku/luci-theme-argon.git package/luci-theme-argon
 git clone --depth 1 https://github.com/jerrykuku/luci-app-argon-config.git package/luci-app-argon-config
