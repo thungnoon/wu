@@ -26,9 +26,9 @@ rm -rf package/feeds/packages/tuic-client
 
 rm -rf feeds/luci/applications/luci-app-dockerman
 rm -rf feeds/packages/utils/docker
-rm -rf feeds/packages/utils/dockerd
-rm -rf feeds/packages/utils/containerd
-rm -rf feeds/packages/utils/runc
+# rm -rf feeds/packages/utils/dockerd
+# rm -rf feeds/packages/utils/containerd
+# rm -rf feeds/packages/utils/runc
 
 # ==================================================
 # 2. 安全更新 Golang（不破坏 apk 依赖链）
