@@ -182,9 +182,11 @@ chmod +x "$LOCK_CLEAN_SCRIPT"
 # ==================================================
 echo "正在写入编译黑名单（屏蔽 geoview 等非必要组件）..."
 cat << 'EOF' >> .config
-# 强制屏蔽 geoview 相关组件
+# 屏蔽 geoview 相关及其他易翻车组件
 # CONFIG_PACKAGE_luci-app-geoview is not set
 # CONFIG_PACKAGE_geoview is not set
+# CONFIG_PACKAGE_luci-app-v2raya is not set
+# CONFIG_PACKAGE_v2raya is not set
 EOF
 
 echo "✅ 全部修复与注入完成！"
