@@ -178,15 +178,26 @@ EOF
 chmod +x "$LOCK_CLEAN_SCRIPT"
 
 # ==================================================
-# 10. 统一屏蔽容易引发编译冲突或编译超时的非核心辅助组件
+# 10. 统一硬编码屏蔽：彻底屏蔽编译毒瘤及冗余冲突组件
 # ==================================================
-echo "正在写入编译黑名单（屏蔽 geoview 等非必要组件）..."
+echo "正在写入编译黑名单（彻底杜绝编译超时与冲突）..."
 cat << 'EOF' >> .config
-# 屏蔽 geoview 相关及其他易翻车组件
+# 1. 屏蔽 geoview & v2raya (已清空)
 # CONFIG_PACKAGE_luci-app-geoview is not set
 # CONFIG_PACKAGE_geoview is not set
 # CONFIG_PACKAGE_luci-app-v2raya is not set
 # CONFIG_PACKAGE_v2raya is not set
+
+# 2. 屏蔽报错的独立版 hysteria (PassWall 靠 sing-box/xray 跑 hy2 即可)
+# CONFIG_PACKAGE_hysteria is not set
+# CONFIG_PACKAGE_luci-app-hysteria is not set
+
+# 3. 屏蔽其他易拉胯/易超时的非必要重型组件
+# CONFIG_PACKAGE_adguardhome is not set
+# CONFIG_PACKAGE_luci-app-adguardhome is not set
+# CONFIG_PACKAGE_luci-app-netdata is not set
+# CONFIG_PACKAGE_luci-app-smartdns is not set
+# CONFIG_PACKAGE_smartdns is not set
 EOF
 
 echo "✅ 全部修复与注入完成！"
