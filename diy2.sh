@@ -14,16 +14,14 @@ rm -rf feeds/luci/applications/luci-app-openclash
 rm -rf feeds/luci/applications/luci-app-homeproxy
 rm -rf feeds/packages/net/lucky
 rm -rf feeds/packages/utils/lucky
+
 rm -rf feeds/luci/applications/luci-app-passwall
 rm -rf feeds/packages/net/xray-core
 rm -rf feeds/packages/net/sing-box
 rm -rf feeds/packages/net/hysteria
 rm -rf feeds/packages/net/tuic-client
 
-# 清理官方 feeds 中的 dockerman 界面
 rm -rf feeds/luci/applications/luci-app-dockerman
-
-# 清理官方 feeds 中的 Docker 底层核心组件（docker, dockerd, containerd, runc）
 rm -rf feeds/packages/utils/docker
 rm -rf feeds/packages/utils/dockerd
 rm -rf feeds/packages/utils/containerd
