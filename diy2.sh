@@ -15,11 +15,11 @@ rm -rf feeds/luci/applications/luci-app-homeproxy
 rm -rf feeds/packages/net/lucky
 rm -rf feeds/packages/utils/lucky
 
-rm -rf feeds/luci/applications/luci-app-passwall
-rm -rf feeds/packages/net/xray-core
-rm -rf feeds/packages/net/sing-box
-rm -rf feeds/packages/net/hysteria
-rm -rf feeds/packages/net/tuic-client
+# rm -rf feeds/luci/applications/luci-app-passwall
+# rm -rf feeds/packages/net/xray-core
+# rm -rf feeds/packages/net/sing-box
+# rm -rf feeds/packages/net/hysteria
+# rm -rf feeds/packages/net/tuic-client
 
 rm -rf feeds/luci/applications/luci-app-dockerman
 rm -rf feeds/packages/utils/docker
