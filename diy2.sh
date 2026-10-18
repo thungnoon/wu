@@ -4,9 +4,11 @@ set -e
 echo "🚀 开始注入 ImmortalWrt 25.12 优化补丁（品牌校正、APK 加速与 Docker 底座）"
 
 # ==================================================
-# 1. 调整冲突插件清理（严禁直接 rm -rf 整个 feeds 语言目录）
+# 1. 冲突插件清理与 Go 毒瘤物理抹除（彻底杜绝隐式依赖与编译报错）
 # ==================================================
-echo "清理冲突插件..."
+echo "清理冲突插件与物理抹除 Go 毒瘤..."
+
+# 1.1 清理冲突主题与同名插件
 rm -rf feeds/luci/themes/luci-theme-argon
 rm -rf feeds/luci/applications/luci-app-argon-config
 rm -rf feeds/luci/applications/luci-app-lucky
@@ -15,20 +17,20 @@ rm -rf feeds/luci/applications/luci-app-homeproxy
 rm -rf feeds/packages/net/lucky
 rm -rf feeds/packages/utils/lucky
 
-# 保留 PassWall 核心，但物理抹除独立的 Go 编译毒瘤 hysteria / tuic
+# 1.2 物理抹除独立 Go 编译毒瘤（无论 Makefile 如何 select，没有源码就只能跳过）
+rm -rf feeds/packages/net/geoview package/feeds/packages/geoview
+rm -rf feeds/packages/net/v2raya package/feeds/packages/v2raya
+rm -rf feeds/packages/net/hysteria package/feeds/packages/hysteria
+rm -rf feeds/packages/net/tuic-client package/feeds/packages/tuic-client
+rm -rf feeds/packages/net/adguardhome package/feeds/packages/adguardhome
+
+# 1.3 Docker 组件：【切勿误删】保留 dockerd / containerd / runc 源码，仅清理多余的 dockerman 重复定义
+rm -rf feeds/luci/applications/luci-app-dockerman
+
+# 保留 PassWall 核心（依赖 Sing-Box/Xray 运行，物理删掉独立 hysteria 绝无影响）
 # rm -rf feeds/luci/applications/luci-app-passwall
 # rm -rf feeds/packages/net/xray-core
 # rm -rf feeds/packages/net/sing-box
-rm -rf feeds/packages/net/hysteria
-rm -rf package/feeds/packages/hysteria
-rm -rf feeds/packages/net/tuic-client
-rm -rf package/feeds/packages/tuic-client
-
-rm -rf feeds/luci/applications/luci-app-dockerman
-# rm -rf feeds/packages/utils/docker
-# rm -rf feeds/packages/utils/dockerd
-# rm -rf feeds/packages/utils/containerd
-# rm -rf feeds/packages/utils/runc
 
 # ==================================================
 # 2. 安全更新 Golang（不破坏 apk 依赖链）
@@ -135,22 +137,7 @@ sed -i '/CONFIG_PACKAGE_usign/d' .config 2>/dev/null || true
 echo "CONFIG_PACKAGE_usign=y" >> .config
 
 # ==================================================
-# 8. 注入 Docker 运行所需的 Linux 内核底层依赖与必备组件
-# ==================================================
-echo "注入 Docker 所需内核模块支持与 runc 运行时..."
-cat << EOF >> .config
-CONFIG_KERNEL_CGROUPS=y
-CONFIG_KERNEL_NAMESPACES=y
-CONFIG_KERNEL_NET_NS=y
-CONFIG_PACKAGE_kmod-ipt-raw=y
-CONFIG_PACKAGE_kmod-veth=y
-CONFIG_PACKAGE_runc=y
-CONFIG_PACKAGE_dockerd=y
-CONFIG_PACKAGE_containerd=y
-EOF
-
-# ==================================================
-# 9. 智能动态源替换（保留系统算的精准路径，自动转向 vsean 加速）
+# 8. 智能动态源替换（保留系统算的精准路径，自动转向 vsean 加速）
 # ==================================================
 echo "配置 apk 智能动态镜像加速..."
 
@@ -184,21 +171,28 @@ EOF
 chmod +x "$LOCK_CLEAN_SCRIPT"
 
 # ==================================================
-# 10. 统一硬编码屏蔽：彻底屏蔽编译毒瘤及冗余冲突组件
+# 9. 统一注入依赖与硬编码屏蔽（构建安全防线）
 # ==================================================
-echo "正在写入编译黑名单（彻底杜绝编译超时与冲突）..."
-cat << 'EOF' >> .config
-# 1. 屏蔽 geoview & v2raya
+echo "写入系统依赖强化与硬编码黑名单..."
+cat << EOF >> .config
+# --- Docker 内核模块与运行组件支持 ---
+CONFIG_KERNEL_CGROUPS=y
+CONFIG_KERNEL_NAMESPACES=y
+CONFIG_KERNEL_NET_NS=y
+CONFIG_PACKAGE_kmod-ipt-raw=y
+CONFIG_PACKAGE_kmod-veth=y
+CONFIG_PACKAGE_runc=y
+CONFIG_PACKAGE_dockerd=y
+CONFIG_PACKAGE_containerd=y
+
+# --- 物理硬编码屏蔽编译毒瘤与冗余组件 ---
 CONFIG_PACKAGE_luci-app-geoview=n
 CONFIG_PACKAGE_geoview=n
 CONFIG_PACKAGE_luci-app-v2raya=n
 CONFIG_PACKAGE_v2raya=n
-
-# 2. 屏蔽报错的独立版 hysteria (PassWall 靠 sing-box/xray 跑 hy2 即可)
 CONFIG_PACKAGE_hysteria=n
 CONFIG_PACKAGE_luci-app-hysteria=n
-
-# 3. 屏蔽其他易拉胯/易超时的非必要重型组件
+CONFIG_PACKAGE_tuic-client=n
 CONFIG_PACKAGE_adguardhome=n
 CONFIG_PACKAGE_luci-app-adguardhome=n
 CONFIG_PACKAGE_luci-app-netdata=n
