@@ -15,11 +15,14 @@ rm -rf feeds/luci/applications/luci-app-homeproxy
 rm -rf feeds/packages/net/lucky
 rm -rf feeds/packages/utils/lucky
 
+# 保留 PassWall 核心，但物理抹除独立的 Go 编译毒瘤 hysteria / tuic
 # rm -rf feeds/luci/applications/luci-app-passwall
 # rm -rf feeds/packages/net/xray-core
 # rm -rf feeds/packages/net/sing-box
-# rm -rf feeds/packages/net/hysteria
-# rm -rf feeds/packages/net/tuic-client
+rm -rf feeds/packages/net/hysteria
+rm -rf package/feeds/packages/hysteria
+rm -rf feeds/packages/net/tuic-client
+rm -rf package/feeds/packages/tuic-client
 
 rm -rf feeds/luci/applications/luci-app-dockerman
 rm -rf feeds/packages/utils/docker
@@ -182,22 +185,22 @@ chmod +x "$LOCK_CLEAN_SCRIPT"
 # ==================================================
 echo "正在写入编译黑名单（彻底杜绝编译超时与冲突）..."
 cat << 'EOF' >> .config
-# 1. 屏蔽 geoview & v2raya (已清空)
-# CONFIG_PACKAGE_luci-app-geoview is not set
-# CONFIG_PACKAGE_geoview is not set
-# CONFIG_PACKAGE_luci-app-v2raya is not set
-# CONFIG_PACKAGE_v2raya is not set
+# 1. 屏蔽 geoview & v2raya
+CONFIG_PACKAGE_luci-app-geoview=n
+CONFIG_PACKAGE_geoview=n
+CONFIG_PACKAGE_luci-app-v2raya=n
+CONFIG_PACKAGE_v2raya=n
 
 # 2. 屏蔽报错的独立版 hysteria (PassWall 靠 sing-box/xray 跑 hy2 即可)
-# CONFIG_PACKAGE_hysteria is not set
-# CONFIG_PACKAGE_luci-app-hysteria is not set
+CONFIG_PACKAGE_hysteria=n
+CONFIG_PACKAGE_luci-app-hysteria=n
 
 # 3. 屏蔽其他易拉胯/易超时的非必要重型组件
-# CONFIG_PACKAGE_adguardhome is not set
-# CONFIG_PACKAGE_luci-app-adguardhome is not set
-# CONFIG_PACKAGE_luci-app-netdata is not set
-# CONFIG_PACKAGE_luci-app-smartdns is not set
-# CONFIG_PACKAGE_smartdns is not set
+CONFIG_PACKAGE_adguardhome=n
+CONFIG_PACKAGE_luci-app-adguardhome=n
+CONFIG_PACKAGE_luci-app-netdata=n
+CONFIG_PACKAGE_luci-app-smartdns=n
+CONFIG_PACKAGE_smartdns=n
 EOF
 
 echo "✅ 全部修复与注入完成！"
