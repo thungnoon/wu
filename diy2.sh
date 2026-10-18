@@ -16,16 +16,14 @@ rm -rf feeds/luci/applications/luci-app-openclash
 rm -rf feeds/luci/applications/luci-app-homeproxy
 rm -rf feeds/packages/net/lucky
 rm -rf feeds/packages/utils/lucky
+rm -rf feeds/luci/applications/luci-app-passwall
+rm -rf feeds/packages/net/xray-core
+rm -rf feeds/packages/net/sing-box
+rm -rf feeds/packages/net/hysteria
+rm -rf feeds/packages/net/tuic-client
 
-
-
-# 1.3 Docker 组件：【切勿误删】保留 dockerd / containerd / runc 源码，仅清理多余的 dockerman 重复定义
+# 1.2 Docker 组件：【切勿误删】保留 dockerd / containerd / runc 源码，仅清理多余的 dockerman 重复定义
 rm -rf feeds/luci/applications/luci-app-dockerman
-
-# 保留 PassWall 核心（依赖 Sing-Box/Xray 运行，物理删掉独立依赖包绝无影响）
-# rm -rf feeds/luci/applications/luci-app-passwall
-# rm -rf feeds/packages/net/xray-core
-# rm -rf feeds/packages/net/sing-box
 
 # ==================================================
 # 2. 安全更新 Golang（不破坏 apk 依赖链）
