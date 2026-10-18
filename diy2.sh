@@ -23,6 +23,7 @@ rm -rf feeds/packages/net/v2raya package/feeds/packages/v2raya
 rm -rf feeds/packages/net/hysteria package/feeds/packages/hysteria
 rm -rf feeds/packages/net/tuic-client package/feeds/packages/tuic-client
 rm -rf feeds/packages/net/adguardhome package/feeds/packages/adguardhome
+rm -rf feeds/packages/net/v2ray-plugin package/feeds/packages/v2ray-plugin
 
 # 1.3 Docker 组件：【切勿误删】保留 dockerd / containerd / runc 源码，仅清理多余的 dockerman 重复定义
 rm -rf feeds/luci/applications/luci-app-dockerman
@@ -198,6 +199,8 @@ CONFIG_PACKAGE_luci-app-adguardhome=n
 CONFIG_PACKAGE_luci-app-netdata=n
 CONFIG_PACKAGE_luci-app-smartdns=n
 CONFIG_PACKAGE_smartdns=n
+CONFIG_PACKAGE_v2ray-plugin=n
+CONFIG_PACKAGE_luci-app-v2ray-plugin=n
 EOF
 
 echo "✅ 全部修复与注入完成！"
