@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-echo "🚀 开始注入 ImmortalWrt 25.12 优化补丁（修复 APK 与版本描述）"
+echo "🚀 开始注入 ImmortalWrt 25.12 优化补丁（品牌校正、APK 加速与 Docker 底座）"
 
 # ==================================================
 # 1. 调整冲突插件清理（严禁直接 rm -rf 整个 feeds 语言目录）
@@ -77,37 +77,38 @@ EOF
 chmod +x "$BOARD_D_PATH/02_network"
 
 # ==================================================
-# 4. 基础系统属性修改
+# 4. 基础系统属性修改（恢复为 ImmortalWrt 正统标识）
 # ==================================================
 echo "修改系统默认配置..."
 sed -i 's/192.168.1.1/192.168.5.1/g' package/base-files/files/bin/config_generate
-sed -i "s/hostname='ImmortalWrt'/hostname='OpenWrt'/g" package/base-files/files/bin/config_generate
+sed -i "s/hostname='OpenWrt'/hostname='ImmortalWrt'/g" package/base-files/files/bin/config_generate
 sed -i 's/^root:[^:]*:/root::/' package/base-files/files/etc/shadow
 
 # ==================================================
-# 5. 修改固件版本描述（已修正：严禁修改 VERSION_REPO）
+# 5. 修改固件版本描述（严禁修改 VERSION_REPO，完美展示 ImmortalWrt）
 # ==================================================
 COMPILE_DATE=$(TZ='Asia/Shanghai' date +%Y.%m.%d)
-CUSTOM_VERSION="OpenWrt （${COMPILE_DATE} compiled by thungnoon)"
+CUSTOM_VERSION="ImmortalWrt 25.12 (${COMPILE_DATE} compiled by thungnoon)"
 CUSTOM_REVISION="${COMPILE_DATE} compiled by thungnoon"
 
 if [ -f "include/version.mk" ]; then
-    sed --follow-symlinks -i -E "s,VERSION_DIST(:=|=).*本地?,VERSION_DIST:=OpenWrt,g" include/version.mk
-    sed --follow-symlinks -i "s,ImmortalWrt,OpenWrt,g" include/version.mk
+    sed --follow-symlinks -i -E "s,VERSION_DIST(:=|=).*本地?,VERSION_DIST:=ImmortalWrt,g" include/version.mk
     sed --follow-symlinks -i "s,VERSION_NUMBER:=.*,VERSION_NUMBER:=${COMPILE_DATE},g" include/version.mk
     sed --follow-symlinks -i "s,VERSION_CODE:=.*,VERSION_CODE:=compiled by thungnoon,g" include/version.mk
-    # 注意：绝对不能再改 VERSION_REPO，否则会破坏 distfeeds 的 URL 生成！
     sed --follow-symlinks -i "s,VERSION_REVISION:=.*,VERSION_REVISION:=${CUSTOM_REVISION},g" include/version.mk
 fi
 
 if [ -d "package/base-files/files/etc" ]; then
     if [ -f "package/base-files/files/etc/openwrt_release" ]; then
         sed --follow-symlinks -i "s,DISTRIB_DESCRIPTION='.*',DISTRIB_DESCRIPTION='${CUSTOM_VERSION}',g" package/base-files/files/etc/openwrt_release
-        sed --follow-symlinks -i "s,DISTRIB_ID='.*',DISTRIB_ID='OpenWrt',g" package/base-files/files/etc/openwrt_release
+        sed --follow-symlinks -i "s,DISTRIB_ID='.*',DISTRIB_ID='ImmortalWrt',g" package/base-files/files/etc/openwrt_release
         sed --follow-symlinks -i "s,DISTRIB_REVISION='.*',DISTRIB_REVISION='${CUSTOM_REVISION}',g" package/base-files/files/etc/openwrt_release
     fi
     echo "${CUSTOM_REVISION}" > "package/base-files/files/etc/openwrt_version"
 fi
+
+# 顺手把底层界面残留的 OpenWrt 文本强行抹掉并更正为 ImmortalWrt
+find feeds/luci/modules/luci-base/ -type f -exec sed -i 's/OpenWrt/ImmortalWrt/g' {} + 2>/dev/null || true
 
 # ==================================================
 # 6. 修改默认主题
