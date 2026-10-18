@@ -135,15 +135,18 @@ sed -i '/CONFIG_PACKAGE_usign/d' .config 2>/dev/null || true
 echo "CONFIG_PACKAGE_usign=y" >> .config
 
 # ==================================================
-# 8. 注入 Docker 运行所需的 Linux 内核底层依赖
+# 8. 注入 Docker 运行所需的 Linux 内核底层依赖与必备组件
 # ==================================================
-echo "注入 Docker 所需内核模块支持..."
+echo "注入 Docker 所需内核模块支持与 runc 运行时..."
 cat << EOF >> .config
 CONFIG_KERNEL_CGROUPS=y
 CONFIG_KERNEL_NAMESPACES=y
 CONFIG_KERNEL_NET_NS=y
 CONFIG_PACKAGE_kmod-ipt-raw=y
 CONFIG_PACKAGE_kmod-veth=y
+CONFIG_PACKAGE_runc=y
+CONFIG_PACKAGE_dockerd=y
+CONFIG_PACKAGE_containerd=y
 EOF
 
 # ==================================================
