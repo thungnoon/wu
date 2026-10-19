@@ -65,8 +65,8 @@ jobs:
           git clone --depth 1 $REPO_URL -b $REPO_BRANCH openwrt
           cd openwrt
           [ -f "../$FEEDS_CONF" ] && cp "../$FEEDS_CONF" ./
-          [ -f "../$DIY1_SH" ] && chmod +x "../$DIY1_SH" && "../$DIY1_SH"
           ./scripts/feeds update -a
+          [ -f "../$DIY1_SH" ] && chmod +x "../$DIY1_SH" && "../$DIY1_SH"
           ./scripts/feeds install -a
 
       - name: 缓存 dl 目录与 ccache
