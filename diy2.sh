@@ -128,26 +128,29 @@ sed -i '/CONFIG_PACKAGE_usign/d' .config 2>/dev/null || true
 echo "CONFIG_PACKAGE_usign=y" >> .config
 
 # ==================================================
-# 8. 智能动态源替换（保留系统算的精准路径，自动转向 vsean 加速）
+# 8. 智能动态源替换与坏源剔除（镜像加速 + 剔除失效 video 源）
 # ==================================================
-echo "配置 apk 智能动态镜像加速..."
+echo "配置 apk 智能动态镜像加速并清理无效源..."
 
 mkdir -p package/base-files/files/etc/apk/repositories.d/
 
-# 1. 编译期预置替换（如果模版已生成）
+# 1. 编译期预置替换与坏源剔除（如果模版已存在）
 DISTFEEDS_TEMPLATE="package/base-files/files/etc/apk/repositories.d/distfeeds.list"
 if [ -f "$DISTFEEDS_TEMPLATE" ]; then
     sed -i 's#https://downloads.immortalwrt.org#https://mirrors.vsean.net/openwrt#g' "$DISTFEEDS_TEMPLATE"
+    sed -i '/video/d' "$DISTFEEDS_TEMPLATE"
 fi
 
-# 2. 开机首刷自适应替换（捕获系统开机自动生成的完整 URL，并将域名重定向至国内镜像）
+# 2. 开机首刷自适应替换（捕获系统开机生成的完整 URL，转镜像并彻底剔除 video 坏源）
 INIT_SCRIPT="package/base-files/files/etc/uci-defaults/99-fix-apk-vsean-mirror"
 cat > "$INIT_SCRIPT" << 'EOF'
 #!/bin/sh
-TARGET_FILE="/etc/apk/repositories.d/distfeeds.list"
-if [ -f "$TARGET_FILE" ]; then
-    sed -i 's#https://downloads.immortalwrt.org#https://mirrors.vsean.net/openwrt#g' "$TARGET_FILE"
-fi
+for file in /etc/apk/repositories.d/*.list /etc/apk/repositories; do
+    if [ -f "$file" ]; then
+        sed -i 's#https://downloads.immortalwrt.org#https://mirrors.vsean.net/openwrt#g' "$file"
+        sed -i '/video/d' "$file"
+    fi
+done
 exit 0
 EOF
 chmod +x "$INIT_SCRIPT"
