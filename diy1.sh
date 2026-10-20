@@ -35,6 +35,9 @@ git clone --depth 1 https://github.com/vernesong/OpenClash.git package/luci-app-
 # partexp
 git clone --depth 1 https://github.com/sirpdboy/luci-app-partexp.git package/luci-app-partexp
 
+# daed
+git clone --depth 1 https://github.com/QiuSimons/luci-app-daed.git package/luci-app-daed
+
 # docker
 #  sbwml 针对 25.12 优化的 Docker 界面与底层组件
 # git clone --depth 1 https://github.com/sbwml/luci-app-dockerman -b openwrt-25.12 package/luci-app-dockerman
