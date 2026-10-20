@@ -38,13 +38,6 @@ git clone --depth 1 https://github.com/sirpdboy/luci-app-partexp.git package/luc
 # daed
 git clone --depth 1 https://github.com/QiuSimons/luci-app-daed.git package/luci-app-daed
 
-# docker
-#  sbwml 针对 25.12 优化的 Docker 界面与底层组件
-# git clone --depth 1 https://github.com/sbwml/luci-app-dockerman -b openwrt-25.12 package/luci-app-dockerman
-# git clone --depth 1 https://github.com/sbwml/packages_utils_docker package/docker
-# git clone --depth 1 https://github.com/sbwml/packages_utils_dockerd package/dockerd
-# git clone --depth 1 https://github.com/sbwml/packages_utils_containerd package/containerd
-
 
 echo "========================================="
 echo "DIY1 完成"
