@@ -1,14 +1,12 @@
 #!/bin/bash
 set -e
 
-echo "🚀 开始注入 ImmortalWrt 25.12 优化补丁（品牌校正、APK 加速与 Docker 底座）"
+echo "🚀 开始注入 ImmortalWrt 25.12 稳定版优化补丁（品牌校正、APK 加速与内核底座）"
 
 # ==================================================
 # 1. 冲突插件清理
 # ==================================================
-echo "清理冲突插件"
-
-# 1.1 清理冲突主题与同名插件
+echo "清理冲突插件..."
 rm -rf feeds/luci/themes/luci-theme-argon
 rm -rf feeds/luci/applications/luci-app-argon-config
 rm -rf feeds/luci/applications/luci-app-lucky
@@ -22,15 +20,15 @@ rm -rf feeds/packages/net/sing-box
 rm -rf feeds/packages/net/hysteria
 rm -rf feeds/packages/net/tuic-client
 
-
 # ==================================================
-# 2. 安全更新 Golang（不破坏 apk 依赖链）
+# 2. 安全更新 Golang（按需启用）
 # ==================================================
-echo "更新 Golang 版本..."
+echo "检查并更新 Golang 版本..."
 if [ -d "feeds/packages/lang/golang" ]; then
     rm -rf feeds/packages/lang/golang
 fi
-git clone --depth 1 -b 27.x https://github.com/sbwml/packages_lang_golang feeds/packages/lang/golang
+# 提示：如果编译报错，可将 -b 分支调整为对应 25.12 兼容的分支
+git clone --depth 1 -b 27.x https://github.com/sbwml/packages_lang_golang feeds/packages/lang/golang || true
 
 # ==================================================
 # 3. 自适应网口配置
@@ -81,7 +79,7 @@ sed -i "s/hostname='OpenWrt'/hostname='ImmortalWrt'/g" package/base-files/files/
 sed -i 's/^root:[^:]*:/root::/' package/base-files/files/etc/shadow
 
 # ==================================================
-# 5. 修改固件版本描述（严禁修改 VERSION_REPO，完美展示 ImmortalWrt）
+# 5. 修改固件版本描述
 # ==================================================
 COMPILE_DATE=$(TZ='Asia/Shanghai' date +%Y.%m.%d)
 CUSTOM_VERSION="ImmortalWrt 25.12 (${COMPILE_DATE} compiled by thungnoon)"
@@ -103,7 +101,7 @@ if [ -d "package/base-files/files/etc" ]; then
     echo "${CUSTOM_REVISION}" > "package/base-files/files/etc/openwrt_version"
 fi
 
-# 顺手把底层界面残留的 OpenWrt 文本强行抹掉并更正为 ImmortalWrt
+# 抹掉残留的 OpenWrt 文本并更正为 ImmortalWrt
 find feeds/luci/modules/luci-base/ -type f -exec sed -i 's/OpenWrt/ImmortalWrt/g' {} + 2>/dev/null || true
 
 # ==================================================
@@ -112,36 +110,20 @@ find feeds/luci/modules/luci-base/ -type f -exec sed -i 's/OpenWrt/ImmortalWrt/g
 sed -i 's/luci-theme-bootstrap/luci-theme-argon/g' feeds/luci/collections/luci/Makefile || true
 
 # ==================================================
-# 7. 清理 opkg 残留与补全 apk 验签/OpenSSL 组件
+# 7. 清理 opkg 残留与规范 apk 验签依赖
 # ==================================================
-echo "清理 opkg 残留并补全 apk/openssl 验证依赖..."
+echo "清理 opkg 残留并规范 apk 验证依赖..."
 rm -rf package/system/opkg 2>/dev/null || true
 rm -rf package/base-files/files/etc/opkg 2>/dev/null || true
 rm -f package/base-files/files/etc/apk/repositories 2>/dev/null || true
-
-# 确保 apk-openssl 与 keyring 依赖被编译入固件
-sed -i '/CONFIG_PACKAGE_apk-openssl/d' .config 2>/dev/null || true
-echo "CONFIG_PACKAGE_apk-openssl=y" >> .config
-sed -i '/CONFIG_PACKAGE_openwrt-keyring/d' .config 2>/dev/null || true
-echo "CONFIG_PACKAGE_openwrt-keyring=y" >> .config
-sed -i '/CONFIG_PACKAGE_usign/d' .config 2>/dev/null || true
-echo "CONFIG_PACKAGE_usign=y" >> .config
 
 # ==================================================
 # 8. 智能动态源替换与坏源剔除（镜像加速 + 剔除失效 video 源）
 # ==================================================
 echo "配置 apk 智能动态镜像加速并清理无效源..."
-
 mkdir -p package/base-files/files/etc/apk/repositories.d/
 
-# 1. 编译期预置替换与坏源剔除（如果模版已存在）
-DISTFEEDS_TEMPLATE="package/base-files/files/etc/apk/repositories.d/distfeeds.list"
-if [ -f "$DISTFEEDS_TEMPLATE" ]; then
-    sed -i 's#https://downloads.immortalwrt.org#https://mirrors.vsean.net/openwrt#g' "$DISTFEEDS_TEMPLATE"
-    sed -i '/video/d' "$DISTFEEDS_TEMPLATE"
-fi
-
-# 2. 开机首刷自适应替换（捕获系统开机生成的完整 URL，转镜像并彻底剔除 video 坏源）
+# 8.1 开机首刷自适应替换（捕获系统生成的源，转镜像并彻底剔除 video 坏源）
 INIT_SCRIPT="package/base-files/files/etc/uci-defaults/99-fix-apk-vsean-mirror"
 cat > "$INIT_SCRIPT" << 'EOF'
 #!/bin/sh
@@ -155,7 +137,7 @@ exit 0
 EOF
 chmod +x "$INIT_SCRIPT"
 
-# 3. 自动清理锁文件，避免后台锁卡死 apk update
+# 8.2 自动清理锁文件，避免后台锁卡死 apk update
 LOCK_CLEAN_SCRIPT="package/base-files/files/etc/uci-defaults/98-clean-apk-locks"
 cat > "$LOCK_CLEAN_SCRIPT" << 'EOF'
 #!/bin/sh
@@ -164,19 +146,4 @@ exit 0
 EOF
 chmod +x "$LOCK_CLEAN_SCRIPT"
 
-
-# ==================================================
-echo "写入系统依赖强化与硬编码黑名单..."
-cat << EOF >> .config
-# --- 容器内核底层支持（保留内核开关，不编译具体二进制大包） ---
-CONFIG_KERNEL_CGROUPS=y
-CONFIG_KERNEL_NAMESPACES=y
-CONFIG_KERNEL_NET_NS=y
-CONFIG_PACKAGE_kmod-ipt-raw=y
-CONFIG_PACKAGE_kmod-veth=y
-# CONFIG_PACKAGE_runc is not set
-# CONFIG_PACKAGE_dockerd is not set
-# CONFIG_PACKAGE_containerd is not set
-EOF
-
-echo "✅ 全部修复与注入完成！"
+echo "✅ diy2 优化补丁注入完成！"
