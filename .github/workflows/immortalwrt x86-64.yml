@@ -60,9 +60,22 @@ jobs:
             p7zip p7zip-full patch pkgconf python3 python3-pyelftools python3-setuptools qemu-utils rsync \
             scons squashfs-tools subversion swig texinfo uglifyjs unzip upx wget xmlto xxd zlib1g-dev
 
-      - name: 克隆源码与初始化 Feeds
+      - name: Clone source code
         run: |
-          git clone --depth 1 $REPO_URL -b $REPO_BRANCH openwrt
+        # 1. 自动获取 ImmortalWrt 25.12 系列最新的 Release Tag（如 v25.12.2）
+          LATEST_TAG=$(git ls-remote --tags --refs $REPO_URL "v25.12*" | sort -t '/' -k3 -V | tail -n1 | awk -F/ '{print $3}')
+        
+        # 2. 如果没获取到 Tag（极罕见网络波动），兜底使用全局定义的 REPO_BRANCH
+          if [ -z "$LATEST_TAG" ]; then
+          LATEST_TAG=$REPO_BRANCH
+          fi
+        
+          echo "=========================================="
+          echo " 锁定拉取的最新稳定版 Tag: $LATEST_TAG"
+          echo "=========================================="
+        
+        # 3. 精确锁定该 Tag 进行深度为 1 的克隆
+          git clone --depth 1 --branch $LATEST_TAG $REPO_URL openwrt
           cd openwrt
           [ -f "../$FEEDS_CONF" ] && cp "../$FEEDS_CONF" ./
           ./scripts/feeds update -a
