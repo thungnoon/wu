@@ -82,10 +82,6 @@ jobs:
           [ -f "../$DIY1_SH" ] && chmod +x "../$DIY1_SH" && "../$DIY1_SH"
           ./scripts/feeds install -a
           
-          # 4. 物理移除 docker-compose，彻底根除其引发的 Go 外部依赖拉取爆仓问题
-          rm -rf feeds/packages/utils/docker-compose
-          echo "已物理移除 feeds 中的 docker-compose 组件"
-
       - name: 缓存 dl 目录与 ccache
         uses: actions/cache@v5
         with:
