@@ -19,6 +19,8 @@ rm -rf feeds/packages/net/xray-core
 rm -rf feeds/packages/net/sing-box
 rm -rf feeds/packages/net/hysteria
 rm -rf feeds/packages/net/tuic-client
+# 物理清除爱惹事的 docker-compose，避开 Go 依赖拉取爆仓
+rm -rf feeds/packages/utils/docker-compose
 
 # ==================================================
 # 2. 安全更新 Golang（按需启用）
