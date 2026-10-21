@@ -10,7 +10,7 @@ on:
 
 env:
   REPO_URL: https://github.com/immortalwrt/immortalwrt
-  REPO_BRANCH: v25.12.2
+  REPO_BRANCH: openwrt 25.12
   CONFIG_FILE: .config
   FEEDS_CONF: feeds.conf.default
   DIY1_SH: diy1.sh
