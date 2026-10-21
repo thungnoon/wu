@@ -21,6 +21,8 @@ rm -rf feeds/packages/net/hysteria
 rm -rf feeds/packages/net/tuic-client
 # 物理清除爱惹事的 docker-compose，避开 Go 依赖拉取爆仓
 rm -rf feeds/packages/utils/docker-compose
+# 顺手把 geoview 也物理下架，彻底绝了后患
+rm -rf feeds/packages/net/geoview package/openwrt-passwall-packages/geoview
 
 # ==================================================
 # 2. 安全更新 Golang（按需启用）
