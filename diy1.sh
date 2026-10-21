@@ -36,7 +36,7 @@ git clone --depth 1 https://github.com/vernesong/OpenClash.git package/luci-app-
 git clone --depth 1 https://github.com/sirpdboy/luci-app-partexp.git package/luci-app-partexp
 
 # daed
-git clone --depth 1 https://github.com/QiuSimons/luci-app-daed.git package/luci-app-daed
+# git clone --depth 1 https://github.com/QiuSimons/luci-app-daed.git package/luci-app-daed
 
 
 echo "========================================="
