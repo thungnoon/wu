@@ -9,19 +9,19 @@ echo "🚀 开始注入 ImmortalWrt 25.12 稳定版优化补丁（品牌校正�
 echo "清理冲突插件..."
 rm -rf feeds/luci/themes/luci-theme-argon
 rm -rf feeds/luci/applications/luci-app-argon-config
+
 rm -rf feeds/luci/applications/luci-app-lucky
 rm -rf feeds/luci/applications/luci-app-openclash
 rm -rf feeds/luci/applications/luci-app-homeproxy
+
 rm -rf feeds/packages/net/lucky
 rm -rf feeds/packages/utils/lucky
+
 rm -rf feeds/luci/applications/luci-app-passwall
 rm -rf feeds/packages/net/xray-core
 rm -rf feeds/packages/net/sing-box
 rm -rf feeds/packages/net/hysteria
 rm -rf feeds/packages/net/tuic-client
-# 彻底清除容易在云端卡死和暴雷的非核心边缘组件
-rm -rf feeds/packages/net/geoview package/openwrt-passwall-packages/geoview
-rm -rf feeds/packages/utils/docker-compose
 
 # ==================================================
 # 2. 安全更新 Golang（按需启用）
